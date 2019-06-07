@@ -27,6 +27,10 @@ def saveCommands(fileName, victim):
     Outputs: None
     """
     #Open the file in write mode with ` delimiter
+    with open(fileName, 'w') as csvfile:
+        writeCommands = csv.writer(csvfile, delimiter='`')
+        for command in victim:
+            writeCommands.writerow(command, victim[command])
     #Iterate through each value and write it to dictionary
 
 
@@ -87,6 +91,9 @@ async def on_message(message):
                         #Update the value
                         images[imageCommand] = command[2]
                         await message.add_reaction('👌')
+
+                    #Update database
+                    
                         
             #Look if its in the images file
         elif command[0] in images.keys():
