@@ -33,6 +33,9 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
+    #Use the global variable images
+    global images
+    
     if message.author == client.user:
         return
     
@@ -40,7 +43,7 @@ async def on_message(message):
     if message.content.startswith('!'):
         #Break up the message text into an array of lowercase letters
         command = message.content.lower()
-        command = command.split()
+        command = command.split(" ", 2)
         print(command)
 
         #Hello: Replies hello
@@ -67,12 +70,12 @@ async def on_message(message):
                     #Add command[1] to the string that will be added, plus a !
                     #Add a ` as the delimiter
                     #Add the text to the string
-                    newEntry = '\n!' + command[1] + '`' + str.join(command[2:])
+                    newEntry = '\n!' + command[1] + '`' + command[2]
                     #Add to end of command list
                     f = open("images.txt", "a+")
                     f.write(newEntry)
                     f.close()
-                    reloadCommands("images.txt", images)
+                    images = reloadCommands("images.txt", images)
                     await message.channel.send("Added")
 
 
