@@ -2,7 +2,7 @@ import discord
 import csv
 
 
-def reloadCommands(fileName, victim):
+def loadCommands(fileName, victim):
     """
     Reloads the commands from a given file
     Input: Name of the file and the dictionary to be reloaded
@@ -24,7 +24,7 @@ def reloadCommands(fileName, victim):
 
 #Load the commands from the file images.txt
 images = dict()
-images = reloadCommands("images.txt", images)
+images = loadCommands("images.txt", images)
 
 #Create the client
 client = discord.Client()
