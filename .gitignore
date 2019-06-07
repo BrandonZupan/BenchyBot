@@ -4,3 +4,5 @@ key.txt
 # Commands
 images.txt
 specialCommands.txt
+
+*.backup
