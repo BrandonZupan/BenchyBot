@@ -67,16 +67,26 @@ async def on_message(message):
         if command[0] == "!cc":
             #Check if admin
                 if message.author.guild_permissions.administrator:
-                    #Add command[1] to the string that will be added, plus a !
-                    #Add a ` as the delimiter
-                    #Add the text to the string
-                    newEntry = '\n!' + command[1] + '`' + command[2]
-                    #Add to end of command list
-                    f = open("images.txt", "a+")
-                    f.write(newEntry)
-                    f.close()
-                    images = reloadCommands("images.txt", images)
-                    await message.add_reaction('👌')
+                    #Look if it is already in there
+                    if command[0] in images:
+                        if command[2] == True:
+                            #Replace the line with a new one
+                            newline = '!' + command[1] + '`' + command[2]
+
+                            #todo: Add to the new file
+
+
+                    else:
+                        #Add command[1] to the string that will be added, plus a !
+                        #Add a ` as the delimiter
+                        #Add the text to the string
+                        newEntry = '\n!' + command[1] + '`' + command[2]
+                        #Add to end of command list
+                        f = open("images.txt", "a+")
+                        f.write(newEntry)
+                        f.close()
+                        images = reloadCommands("images.txt", images)
+                        await message.add_reaction('👌')
 
 
 
