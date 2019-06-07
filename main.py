@@ -60,6 +60,23 @@ async def on_message(message):
                     possiblecommands += command + ', '
                 await message.channel.send(possiblecommands)
 
+        #Adds a new command to the list
+        if command[0] == "!cc":
+            #Check if admin
+                if message.author.guild_permissions.administrator:
+                    #Add command[1] to the string that will be added, plus a !
+                    #Add a ` as the delimiter
+                    #Add the text to the string
+                    newEntry = '\n!' + command[1] + '`' + str.join(command[2:])
+                    #Add to end of command list
+                    f = open("images.txt", "a+")
+                    f.write(newEntry)
+                    f.close()
+                    reloadCommands("images.txt", images)
+                    await message.channel.send("Added")
+
+
+
         #Look if its in the images file
         elif command[0] in images.keys():
             await message.channel.send(images[command[0]][0])
