@@ -59,7 +59,7 @@ async def on_message(message):
         #Break up the message text into an array of lowercase letters
         command = message.content.lower()
         command = command.split(" ", 2)
-        print(command)
+        #print(command)
 
         #Hello: Replies hello
         if command[0] == "!hello":
