@@ -71,41 +71,15 @@ async def on_message(message):
                 if message.author.guild_permissions.administrator:
                     imageCommand = '!' + command[1]
                     #If there is no command[2], then delete.  Else assign the value
-                    if command[2] == None:
+                    if len(command) <= 2:
                         #delete
-                        print("delete")
+                        del images[imageCommand]
                     else:
                         #Update the value
                         images[imageCommand] = command[2]
                         await message.add_reaction('👌')
-
-"""
-                    #Look if it is already in there
-                    if imageCommand in images:
-                        if command[2] == None:
-                            #Delete the entry
-                            yeet = 'yeet'
-
                         
-                            #Add command[1] to the string that will be added, plus a !
-                            #Add a ` as the delimiter
-                            #Add the text to the string
-                            #newEntry = '\n!' + command[1] + '`' + command[2]
-                            #Add to dictionary
-                            images[imageCommand] = command[2]
-                            
-                            
-                            f = open("images.txt", "a+")
-                            f.write(newEntry)
-                            f.close()
-                            images = reloadCommands("images.txt", images)
-                            """
-                            #await message.add_reaction('👌')
-                        
-
-
-
-        #Look if its in the images file
+            #Look if its in the images file
         elif command[0] in images.keys():
             await message.channel.send(images[command[0]])
 
