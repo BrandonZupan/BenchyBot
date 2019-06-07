@@ -1,13 +1,30 @@
 import discord
 
+
+
+def reloadCommands(fileName, victim):
+    """
+    Reloads the commands from a given file
+    Input: Name of the file and the dictionary to be reloaded
+    Output: The dictionary
+    """
+    #Delete all values in the dictionary
+    print("Reloading " + fileName)
+    victim.clear()
+    #Load the commands from the file images.txt
+    with open(fileName) as fin:
+        rows = ( line.split('`') for line in fin )
+        outDict = { row[0]:row[1:] for row in rows }
+
+    return outDict
+
+
+
 #Load the commands from the file images.txt
-with open("images.txt") as fin:
-     rows = ( line.split('`') for line in fin )
-     images = { row[0]:row[1:] for row in rows }
+images = dict()
+images = reloadCommands("images.txt", images)
 
-#The commands are now in a dictionary with each entry pointing to the message, in an array of one entry
-
-
+#Create the client
 client = discord.Client()
 
 @client.event
