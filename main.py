@@ -1,5 +1,5 @@
 import discord
-
+import csv
 
 
 def reloadCommands(fileName, victim):
@@ -8,21 +8,24 @@ def reloadCommands(fileName, victim):
     Input: Name of the file and the dictionary to be reloaded
     Output: The dictionary
     """
+    #new dictionary
+    newImages = dict()
     #Delete all values in the dictionary
     print("Reloading " + fileName)
     victim.clear()
     #Load the commands from the file images.txt
-    with open(fileName) as fin:
-        rows = ( line.split('`') for line in fin )
-        outDict = { row[0]:row[1:] for row in rows }
-
-    return outDict
+    with open(fileName) as csvfile:
+        reader = csv.reader(csvfile, delimiter='`')
+        for row in reader:
+            newImages[row[0]] = row[1]
+    return newImages
 
 
 
 #Load the commands from the file images.txt
 images = dict()
 images = reloadCommands("images.txt", images)
+print(images)
 
 #Create the client
 client = discord.Client()
@@ -92,7 +95,7 @@ async def on_message(message):
 
         #Look if its in the images file
         elif command[0] in images.keys():
-            await message.channel.send(images[command[0]][0])
+            await message.channel.send(images[command[0]])
 
         
 
