@@ -20,6 +20,15 @@ def loadCommands(fileName, victim):
             newImages[row[0]] = row[1]
     return newImages
 
+def saveCommands(fileName, victim):
+    """
+    Writes the dictionary of commands to a file
+    Inputs: name of file and dictionary
+    Outputs: None
+    """
+    #Open the file in write mode with ` delimiter
+    #Iterate through each value and write it to dictionary
+
 
 
 #Load the commands from the file images.txt
