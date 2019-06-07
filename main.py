@@ -35,7 +35,7 @@ async def on_ready():
 async def on_message(message):
     #Use the global variable images
     global images
-    
+
     if message.author == client.user:
         return
     
@@ -76,7 +76,7 @@ async def on_message(message):
                     f.write(newEntry)
                     f.close()
                     images = reloadCommands("images.txt", images)
-                    await message.channel.send("Added")
+                    await message.add_reaction('👌')
 
 
 
