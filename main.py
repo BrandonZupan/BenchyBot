@@ -102,6 +102,6 @@ async def on_message(message):
         
 
 
-with open('keys.txt', 'r') as keyFile:
+with open('key.txt', 'r') as keyFile:
     key = keyFile.read()
 client.run(key)
