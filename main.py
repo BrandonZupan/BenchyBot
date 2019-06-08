@@ -82,9 +82,24 @@ async def on_message(message):
         if command[0] == "!cc":
             #Check if admin
                 if message.author.guild_permissions.administrator:
+                    #If there is one entry, then give info
+                    if len(command) == 1:
+                        embed = discord.Embed(
+                            title = "Command: !cc", 
+                            description = "Creates, modifies, or deletes a command",
+                            color = 0xBF5700)
+                        embed.add_field(
+                            name = "!cc <command_name> <link and/or text>", 
+                            value = "Creates a new command or updates a command with that name and link/text")
+                        embed.add_field(
+                            name = "!cc <command_name>",
+                            value = "Deletes that command")
+                        await message.channel.send(embed=embed)
+                        return
+                    
                     imageCommand = '!' + command[1]
                     #If there is no command[2], then delete.  Else assign the value
-                    if len(command) <= 2:
+                    if len(command) == 2:
                         #delete
                         del images[imageCommand]
                     else:
