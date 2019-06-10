@@ -57,8 +57,9 @@ async def on_message(message):
     #Check if they're talking to bot
     if message.content.startswith('!'):
         #Break up the message text into an array of lowercase letters
-        command = message.content.lower()
+        command = message.content
         command = command.split(" ", 2)
+        command[0] = command[0].lower()
         #print(command)
 
         #Hello: Replies hello
