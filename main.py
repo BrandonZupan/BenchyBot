@@ -94,9 +94,6 @@ async def on_message(message):
                         embed.add_field(
                             name = "!cc <command_name>",
                             value = "Deletes that command")
-                        embed.add_field(
-                            name = "List all commands with !listcommands",
-                            value = "")
                         await message.channel.send(embed=embed)
                         return
                     
