@@ -37,7 +37,24 @@ def saveCommands(fileName, victim):
             writeCommands.writerow([command, victim[command]])
     #Iterate through each value and write it to dictionary
 
+#SQL Database
+engine = create_engine('sqlite:///:memory:', echo=True)
+Base = declarative_base()
 
+class ccCommand(Base):
+    __tablename__ = "imageCommands"
+    
+    #Has a column for the ID, name, and responce
+    #id = Column(Integer, primary_key=True)
+    name = Column(String, primary_key=True)
+    responce = Column(String)
+
+#Create the Table   
+Base.metadata.create_all(engine)
+
+#Start the SQL session
+Session = sessionmaker(bind=engine)
+session = Session()
 
 #Load the commands from the file images.txt
 images = dict()
@@ -78,15 +95,6 @@ async def on_message(message):
         command = command.split(" ", 2)
         command[0] = command[0].lower()
         #print(command)
-
-        #Hello: Replies hello
-        if command[0] == "!hello":
-            name = "  "
-            name = message.author
-            name = str(name)
-            #print(name)
-            #name = name.split("#")
-            await message.channel.send('Hello ' + name.split('#')[0] + '!')
 
         #Print all the possible image commands
         if command[0] == "!listcommands":
