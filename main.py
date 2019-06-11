@@ -102,7 +102,7 @@ async def cc(ctx, *args):
     if len(args) >= 2:
         #newCC = ccCommand(args[0], ' '.join(args[1:]))
         #await ctx.send("Command " + newCC.name + " with link " + newCC.responce)
-        newCC = ccCommand(name=args[0], responce=' '.join(args[1:]))
+        newCC = ccCommand(name=args[0].lower(), responce=' '.join(args[1:]))
         session.merge(newCC)
         session.commit()
         #await ctx.send("Command " + newCC.name + " with link " + newCC.responce)
@@ -115,6 +115,21 @@ async def listcommands(ctx):
     for instance in session.query(ccCommand).order_by(ccCommand.name):
         commandList += instance.name + ' '
     await ctx.send(commandList)
+
+@client.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.errors.CommandNotFound):
+        #await ctx.send(ctx.message.content)
+        command = ctx.message.content.lower()
+        command = command.split(" ", 1)
+
+        #Look if its in the database
+        for instance in session.query(ccCommand).order_by(ccCommand.name):
+            if instance.name == command[0][1:]:
+                await ctx.send(instance.responce)
+                return
+    else:
+        print(error)
 
 """
 @client.event
