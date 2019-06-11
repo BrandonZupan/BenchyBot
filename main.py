@@ -54,6 +54,15 @@ async def on_ready():
 async def is_admin(ctx):
     return ctx.message.author.guild_permissions.administrator
 
+##############
+###Commands###
+##############
+
+@client.command(name='hello')
+async def hello(ctx):
+    await ctx.send("Hello " + str(ctx.author).split('#')[0] + '!')
+
+"""
 @client.event
 async def on_message(message):
     #Use the global variable images
@@ -122,7 +131,7 @@ async def on_message(message):
             #Look if its in the images file
         elif command[0] in images.keys():
             await message.channel.send(images[command[0]])
-
+"""
         
 
 
