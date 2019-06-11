@@ -6,3 +6,4 @@ images.txt
 specialCommands.txt
 
 *.backup
+*.db
