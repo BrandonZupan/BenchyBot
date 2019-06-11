@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 
 
 #SQL Database
-engine = create_engine('sqlite:///responces.db', echo=True)
+engine = create_engine('sqlite:///:memory:', echo=True)
 Base = declarative_base()
 
 class ccCommand(Base):
@@ -52,7 +52,11 @@ async def cc(ctx, *args):
         commandList = str()
         for instance in session.query(ccCommand).order_by(ccCommand.name):
             commandList += instance.name + ' '
-        await ctx.send(commandList)
+        embed = discord.Embed(
+            title = "Command: !cc", 
+            description = commandList,
+            color = 0xBF5700)
+        await ctx.send(embed=embed)
 
     #If one argument, delete that command
     if len(args) == 1:
@@ -79,7 +83,11 @@ async def listcommands(ctx):
     commandList = str()
     for instance in session.query(ccCommand).order_by(ccCommand.name):
         commandList += instance.name + ' '
-    await ctx.send(commandList)
+    embed = discord.Embed(
+        title = "Command: !cc", 
+        description = commandList,
+        color = 0xBF5700)
+    await ctx.send(embed=embed)
 
 @client.event
 async def on_command_error(ctx, error):
