@@ -79,6 +79,43 @@ async def is_admin(ctx):
 async def hello(ctx):
     await ctx.send("Hello " + str(ctx.author).split('#')[0] + '!')
 
+@client.command(name='cc')
+@commands.check(is_admin)
+async def cc(ctx, *args):
+    #If zero arguments, list all commands
+    if len(args) == 0:
+        commandList = str()
+        for instance in session.query(ccCommand).order_by(ccCommand.name):
+            commandList += instance.name + ' '
+        await ctx.send(commandList)
+
+    #If one argument, delete that command
+    if len(args) == 1:
+        print(args[0])
+        victim = session.query(ccCommand).filter_by(name=args[0]).one()
+        print(victim.responce)
+        session.delete(victim)
+        session.commit()
+        await ctx.message.add_reaction('👌')
+
+    #If 2 or more arguments, combine them and modify database
+    if len(args) >= 2:
+        #newCC = ccCommand(args[0], ' '.join(args[1:]))
+        #await ctx.send("Command " + newCC.name + " with link " + newCC.responce)
+        newCC = ccCommand(name=args[0], responce=' '.join(args[1:]))
+        session.merge(newCC)
+        session.commit()
+        #await ctx.send("Command " + newCC.name + " with link " + newCC.responce)
+        await ctx.message.add_reaction('👌')
+
+@client.command(name='listcommands')
+@commands.check(is_admin)
+async def listcommands(ctx):
+    commandList = str()
+    for instance in session.query(ccCommand).order_by(ccCommand.name):
+        commandList += instance.name + ' '
+    await ctx.send(commandList)
+
 """
 @client.event
 async def on_message(message):
