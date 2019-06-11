@@ -43,12 +43,16 @@ def saveCommands(fileName, victim):
 images = dict()
 images = loadCommands("images.txt", images)
 
-#Create the client
-client = discord.Client()
+#Discord client
+client = commands.Bot(command_prefix='!')
 
 @client.event
 async def on_ready():
     print('We have logged in as {0.user}'.format(client))
+
+#Used to check if user is admin
+async def is_admin(ctx):
+    return ctx.message.author.guild_permissions.administrator
 
 @client.event
 async def on_message(message):
