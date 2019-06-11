@@ -6,37 +6,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 
-def loadCommands(fileName, victim):
-    """
-    Reloads the commands from a given file
-    Input: Name of the file and the dictionary to be reloaded
-    Output: The dictionary
-    """
-    #new dictionary
-    newImages = dict()
-    #Delete all values in the dictionary
-    print("Reloading " + fileName)
-    victim.clear()
-    #Load the commands from the file images.txt
-    with open(fileName) as csvfile:
-        reader = csv.reader(csvfile, delimiter='`')
-        for row in reader:
-            newImages[row[0]] = row[1]
-    return newImages
-
-def saveCommands(fileName, victim):
-    """
-    Writes the dictionary of commands to a file
-    Inputs: name of file and dictionary
-    Outputs: None
-    """
-    #Open the file in write mode with ` delimiter
-    with open(fileName, 'w') as csvfile:
-        writeCommands = csv.writer(csvfile, delimiter='`')
-        for command in victim:
-            writeCommands.writerow([command, victim[command]])
-    #Iterate through each value and write it to dictionary
-
 #SQL Database
 engine = create_engine('sqlite:///responces.db', echo=True)
 Base = declarative_base()
@@ -55,10 +24,6 @@ Base.metadata.create_all(engine)
 #Start the SQL session
 Session = sessionmaker(bind=engine)
 session = Session()
-
-#Load the commands from the file images.txt
-images = dict()
-images = loadCommands("images.txt", images)
 
 #Discord client
 client = commands.Bot(command_prefix='!')
@@ -120,15 +85,6 @@ async def listcommands(ctx):
 async def is_brandon(ctx):
     return ctx.message.author.id == 158062741112881152
 
-@client.command(name='import')
-@commands.check(is_brandon)
-async def commandImport(ctx):
-    for entries in images:
-        newCC = ccCommand(name=entries.lower()[1:], responce=images[entries])
-        session.merge(newCC)
-    session.commit()
-    await ctx.send("Import complete")
-
 @client.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.CommandNotFound):
@@ -143,69 +99,7 @@ async def on_command_error(ctx, error):
                 return
     else:
         print(error)
-
-"""
-@client.event
-async def on_message(message):
-    #Use the global variable images
-    global images
-
-    if message.author == client.user:
-        return
-    
-    #Check if they're talking to bot
-    if message.content.startswith('!'):
-        #Break up the message text into an array of lowercase letters
-        command = message.content
-        command = command.split(" ", 2)
-        command[0] = command[0].lower()
-        #print(command)
-
-        #Print all the possible image commands
-        if command[0] == "!listcommands":
-            if message.author.guild_permissions.administrator:
-                possiblecommands = ""
-                for command in images:
-                    possiblecommands += command + ', '
-                await message.channel.send(possiblecommands)
-
-        #Adds a new command to the list
-        if command[0] == "!cc":
-            #Check if admin
-                if message.author.guild_permissions.administrator:
-                    #If there is one entry, then give info
-                    if len(command) == 1:
-                        embed = discord.Embed(
-                            title = "Command: !cc", 
-                            description = "Creates, modifies, or deletes a command",
-                            color = 0xBF5700)
-                        embed.add_field(
-                            name = "!cc <command_name> <link and/or text>", 
-                            value = "Creates a new command or updates a command with that name and link/text")
-                        embed.add_field(
-                            name = "!cc <command_name>",
-                            value = "Deletes that command")
-                        await message.channel.send(embed=embed)
-                        return
-                    
-                    imageCommand = '!' + command[1]
-                    #If there is no command[2], then delete.  Else assign the value
-                    if len(command) == 2:
-                        #delete
-                        del images[imageCommand]
-                    else:
-                        #Update the value
-                        images[imageCommand] = command[2]
-
-                    #Update database
-                    saveCommands("images.txt", images)
-                    await message.add_reaction('👌')
-                        
-            #Look if its in the images file
-        elif command[0] in images.keys():
-            await message.channel.send(images[command[0]])
-"""
-        
+  
 
 
 with open('key.txt', 'r') as keyFile:
