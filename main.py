@@ -38,7 +38,7 @@ def saveCommands(fileName, victim):
     #Iterate through each value and write it to dictionary
 
 #SQL Database
-engine = create_engine('sqlite:///:memory:', echo=True)
+engine = create_engine('sqlite:///responces.db', echo=True)
 Base = declarative_base()
 
 class ccCommand(Base):
