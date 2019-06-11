@@ -116,6 +116,19 @@ async def listcommands(ctx):
         commandList += instance.name + ' '
     await ctx.send(commandList)
 
+#Used to check if user is admin
+async def is_brandon(ctx):
+    return ctx.message.author.id == 158062741112881152
+
+@client.command(name='import')
+@commands.check(is_brandon)
+async def commandImport(ctx):
+    for entries in images:
+        newCC = ccCommand(name=entries.lower()[1:], responce=images[entries])
+        session.merge(newCC)
+    session.commit()
+    await ctx.send("Import complete")
+
 @client.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.CommandNotFound):
