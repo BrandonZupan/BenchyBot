@@ -45,11 +45,23 @@ async def is_admin(ctx):
 
 @client.command(name='hello')
 async def hello(ctx):
+    """
+    Says hello to the user
+    """
     await ctx.send("Hello " + str(ctx.author).split('#')[0] + '!')
 
-@client.command(name='cc')
+@client.command(name='cc', hidden=True)
 @commands.check(is_admin)
 async def cc(ctx, *args):
+    """
+    Modifies the command database
+
+    List commands: $cc
+    Modify or create a command: $cc <command_name> <responce>
+    Delete a command: $cc <command_name>
+
+    Bot will confirm with :ok_hand:
+    """
     #If zero arguments, list all commands
     if len(args) == 0:
         commandList = str()
@@ -82,7 +94,7 @@ async def cc(ctx, *args):
         await ctx.message.add_reaction('👌')
         logging.info(ctx.author.name + " added " + newCC.name + " with responce " + newCC.responce)
 
-@client.command(name='listcommands')
+@client.command(name='listcommands', hidden=True)
 @commands.check(is_admin)
 async def listcommands(ctx):
     commandList = str()
