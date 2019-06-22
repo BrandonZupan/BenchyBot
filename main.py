@@ -4,10 +4,13 @@ from discord.ext import commands
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+import logging
 
+#Start logging
+logging.basicConfig(level=logging.INFO)
 
 #SQL Database
-engine = create_engine('sqlite:///responces.db', echo=True)
+engine = create_engine('sqlite:///responces.db', echo=False)
 Base = declarative_base()
 
 class ccCommand(Base):
@@ -66,6 +69,7 @@ async def cc(ctx, *args):
         session.delete(victim)
         session.commit()
         await ctx.message.add_reaction('👌')
+        logging.info(ctx.author.name + " deleted " + victim.name)
 
     #If 2 or more arguments, combine them and modify database
     if len(args) >= 2:
@@ -76,6 +80,7 @@ async def cc(ctx, *args):
         session.commit()
         #await ctx.send("Command " + newCC.name + " with link " + newCC.responce)
         await ctx.message.add_reaction('👌')
+        logging.info(ctx.author.name + " added " + newCC.name + " with responce " + newCC.responce)
 
 @client.command(name='listcommands')
 @commands.check(is_admin)
