@@ -39,6 +39,21 @@ async def on_ready():
 async def is_admin(ctx):
     return ctx.message.author.guild_permissions.administrator
 
+async def in_secretChannel(ctx):
+    """Checks if a command was used in a secret channel"""
+    secretChannels = {
+        'command-sandbox': 339978089411117076,
+        'srsbusiness': 525494034203017246,
+        'lets-kill-this-bot': 532781500471443477
+    }
+    usedChannel = ctx.channel.id
+    for channel in secretChannels:
+        if secretChannels[channel] == usedChannel:
+            return True
+
+    #It dont exist
+    return False
+
 ##############
 ###Commands###
 ##############
@@ -52,6 +67,7 @@ async def hello(ctx):
 
 @client.command(name='cc', hidden=True)
 @commands.check(is_admin)
+@commands.check(in_secretChannel)
 async def cc(ctx, *args):
     """
     Modifies the command database
@@ -96,6 +112,7 @@ async def cc(ctx, *args):
 
 @client.command(name='listcommands', hidden=True)
 @commands.check(is_admin)
+@commands.check(in_secretChannel)
 async def listcommands(ctx):
     commandList = str()
     for instance in session.query(ccCommand).order_by(ccCommand.name):
