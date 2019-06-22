@@ -72,9 +72,9 @@ async def cc(ctx, *args):
     """
     Modifies the command database
 
-    List commands: $cc
-    Modify or create a command: $cc <command_name> <responce>
-    Delete a command: $cc <command_name>
+    List commands: !cc
+    Modify or create a command: !cc <command_name> <responce>
+    Delete a command: !cc <command_name>
 
     Bot will confirm with :ok_hand:
     """
