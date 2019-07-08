@@ -5,6 +5,7 @@ from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import logging
+from joinGraph import joinChartGenerator
 
 #Start logging
 logging.basicConfig(level=logging.INFO)
@@ -64,6 +65,12 @@ async def hello(ctx):
     Says hello to the user
     """
     await ctx.send("Hello " + str(ctx.author).split('#')[0] + '!')
+
+
+@client.command(name='usergraph', hidden=True)
+@commands.check(is_admin)
+async def usergraph(ctx):
+    await joinChartGenerator(ctx)
 
 @client.command(name='cc', hidden=True)
 @commands.check(is_admin)
