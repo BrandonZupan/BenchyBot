@@ -5,7 +5,7 @@ from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import logging
-from joinGraph import joinChartGenerator
+from joinGraph import joinChartGenerator, userCSVgenerator
 
 #Start logging
 logging.basicConfig(level=logging.INFO)
@@ -71,6 +71,11 @@ async def hello(ctx):
 @commands.check(is_admin)
 async def usergraph(ctx):
     await joinChartGenerator(ctx)
+
+@client.command(name='userlist', hidden=True)
+@commands.check(is_admin)
+async def userlist(ctx):
+    await userCSVgenerator(ctx)
 
 @client.command(name='cc', hidden=True)
 @commands.check(is_admin)

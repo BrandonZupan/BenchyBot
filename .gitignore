@@ -9,5 +9,6 @@ specialCommands.txt
 *.db
 
 *.png
+*.csv
 
 *.pyc
