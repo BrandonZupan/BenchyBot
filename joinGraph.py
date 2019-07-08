@@ -42,7 +42,7 @@ async def userCSVgenerator(ctx):
         totalUsers += 1
         name = str(i.name) + '#' + str(i.discriminator)
         joindate = i.joined_at
-        dates[name] = joindate.strftime("%b %d %y")
+        dates[name] = joindate.strftime("%x %X")
 
     #print(dates)
     csv_columns = ['user', 'date']
