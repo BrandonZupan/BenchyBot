@@ -74,6 +74,7 @@ async def usergraph(ctx):
 
 @client.command(name='userlist', hidden=True)
 @commands.check(is_admin)
+@commands.check(in_secretChannel)
 async def userlist(ctx):
     await userCSVgenerator(ctx)
 
