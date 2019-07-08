@@ -56,7 +56,7 @@ async def usergraph(ctx):
     await joinChartGenerator(ctx)
 
 
-keyFile = open('keys.txt', 'r')
+keyFile = open('key.txt', 'r')
 key = keyFile.read()
 client.run(key)
 

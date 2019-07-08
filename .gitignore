@@ -9,3 +9,5 @@ specialCommands.txt
 *.db
 
 *.png
+
+*.pyc
