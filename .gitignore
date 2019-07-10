@@ -12,3 +12,6 @@ specialCommands.txt
 *.csv
 
 *.pyc
+
+#image files for machine learning
+benchydetection
