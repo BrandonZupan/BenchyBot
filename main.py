@@ -1,10 +1,15 @@
+"""
+Brandon Zupan
+
+Runs the main code for the 3D Printing Discord's Benchy Bot
+"""
+
+import logging
 import discord
-import csv
 from discord.ext import commands
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import create_engine, Column, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-import logging
 from joinGraph import joinChartGenerator, userCSVgenerator
 
 #Start logging

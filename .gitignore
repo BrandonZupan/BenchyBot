@@ -14,5 +14,7 @@ specialCommands.txt
 
 *.pyc
 
+.pylintrc
+
 #image files for machine learning
 benchydetection
