@@ -11,13 +11,14 @@ from sqlalchemy import create_engine, Column, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from joinGraph import joinChartGenerator, userCSVgenerator
+from BenchyDetector import is_benchy
 
 
 #Start logging
 logging.basicConfig(level=logging.INFO)
 
 #SQL Database
-ENGINE = create_engine('sqlite:///responces.db', echo=False)
+ENGINE = create_engine('sqlite:///:memory:', echo=False)
 BASE = declarative_base()
 
 class CCCommand(BASE):
@@ -176,6 +177,23 @@ async def on_command_error(ctx, error):
                 return
     else:
         print(error)
+
+@CLIENT.event
+async def on_message(ctx):
+    """
+    Checks if there is a benchy in the image
+    """
+    #Only do this in command sandbox for now
+    if ctx.channel.id == 532781500471443477:
+        #Check if there's an attachment
+        if ctx.attachments:
+            for i in ctx.attachments:
+                if i.height:
+                    save_path = f"temp/{i.filename}"
+                    await i.save(save_path)
+                    benchy_amount = is_benchy(save_path)
+                    print(benchy_amount)
+
 
 
 with open('key.txt', 'r') as keyFile:
