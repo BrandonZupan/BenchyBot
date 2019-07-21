@@ -3,8 +3,8 @@ import numpy as np
 import os
 
 def store_raw_images():
-    picNumber = 1
-    victimName = 'benchydetection/pics'
+    picNumber = 2940
+    victimName = 'benchydetection/subredditstuff/roastme'
     resultName = 'benchydetection/neg'
     #Make directory if it doesnt exist
     if not os.path.exists(resultName):
@@ -19,9 +19,9 @@ def store_raw_images():
         #Open and make it greyscale
         img = cv2.imread(victimName + '/' + filename, cv2.IMREAD_GRAYSCALE)
         #resize
-        resized_image = cv2.resize(img, (200, 200))
+        resized_image = cv2.resize(img, (600, 400))
         #Write
-        cv2.imwrite(resultName+'/'+str(picNumber)+".jpg", resized_image)
+        cv2.imwrite(resultName+'/'+str(picNumber)+".png", resized_image)
         picNumber += 1
 
 def mirrorImages():
@@ -48,11 +48,11 @@ def createbg():
     """
     Creates bg.txt for negatives
     """
-    numberofPics = 606
+    numberofPics = 2142
 
     with open('bg.txt', 'w') as file:
         for i in range(numberofPics):
-            file.write("neg/" + str(i) + '.jpg\n')
+            file.write("neg/" + str(i) + '.png\n')
 
 def createinfo():
     """
