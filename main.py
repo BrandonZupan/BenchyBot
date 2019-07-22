@@ -10,14 +10,14 @@ from discord.ext import commands
 from sqlalchemy import create_engine, Column, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from graphing import join_chart_generator, user_csv_generator
+import graphing
 
 
 #Start logging
 logging.basicConfig(level=logging.INFO)
 
 #SQL Database
-ENGINE = create_engine('sqlite:///responces.db', echo=False)
+ENGINE = create_engine('sqlite:///:memory:', echo=False)
 BASE = declarative_base()
 
 class CCCommand(BASE):
@@ -87,7 +87,7 @@ async def user_graph(ctx):
     """
     Generates a graph of when users joined
     """
-    await join_chart_generator(ctx)
+    await graphing.join_chart_generator(ctx)
 
 @CLIENT.command(name='userlist', hidden=True)
 @commands.check(is_admin)
@@ -96,7 +96,17 @@ async def user_list(ctx):
     """
     Generates a CSV of when all members joined
     """
-    await user_csv_generator(ctx)
+    await graphing.user_csv_generator(ctx)
+
+@CLIENT.command(name='printergraph', hidden=True)
+@commands.check(is_admin)
+@commands.check(in_secret_channel)
+async def printergraph(ctx):
+    """
+    Generates a graph of all printers
+    Restricted to admin perms and secret channels
+    """
+    await graphing.printer_graph_generator(ctx)
 
 @CLIENT.command(name='cc', hidden=True)
 @commands.check(is_admin)

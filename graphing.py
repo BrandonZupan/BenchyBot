@@ -69,3 +69,26 @@ async def user_csv_generator(ctx):
     message = str(total_users) + " users as of " + str(d)
     await ctx.send(message)
     await ctx.send(file=discord.File('userJoinTimes.csv'))
+
+async def printer_graph_generator(ctx):
+    """
+    Generates a graph of users in each role, while ignoring some
+    Returns none, uploads image to discord
+    """
+    #Get a dictionary with each role and the amount of members
+    all_roles = {}
+    with open('ignored_roles.txt', 'w') as f:
+
+        for role in ctx.guild.roles:
+            #Ignore these roles
+            #if role.name in ignored_roles
+            #member_amount = len(role.members)
+            #if member_amount >= 5:
+            #    all_roles[role.name] = len(role.members)
+            f.write(f"{role.name}\n")
+
+    print(all_roles)
+    #Generate a bar graph with the data
+    #???
+    #Profit
+
