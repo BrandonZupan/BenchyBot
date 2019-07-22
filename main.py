@@ -100,11 +100,10 @@ async def user_list(ctx):
 
 @CLIENT.command(name='printergraph', hidden=True)
 @commands.check(is_admin)
-@commands.check(in_secret_channel)
 async def printergraph(ctx):
     """
     Generates a graph of all printers
-    Restricted to admin perms and secret channels
+    Restricted to admin perms
     """
     await graphing.printer_graph_generator(ctx)
 
