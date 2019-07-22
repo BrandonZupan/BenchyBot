@@ -10,7 +10,7 @@ from discord.ext import commands
 from sqlalchemy import create_engine, Column, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from joinGraph import joinChartGenerator, userCSVgenerator
+from graphing import join_chart_generator, user_csv_generator
 
 
 #Start logging
@@ -87,7 +87,7 @@ async def user_graph(ctx):
     """
     Generates a graph of when users joined
     """
-    await joinChartGenerator(ctx)
+    await join_chart_generator(ctx)
 
 @CLIENT.command(name='userlist', hidden=True)
 @commands.check(is_admin)
@@ -96,7 +96,7 @@ async def user_list(ctx):
     """
     Generates a CSV of when all members joined
     """
-    await userCSVgenerator(ctx)
+    await user_csv_generator(ctx)
 
 @CLIENT.command(name='cc', hidden=True)
 @commands.check(is_admin)

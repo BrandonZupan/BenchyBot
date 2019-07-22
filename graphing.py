@@ -1,26 +1,35 @@
+"""
+Brandon Zupan
+
+Gathers various types of data on the server
+"""
+
+import csv
+from datetime import datetime
 import discord
 import matplotlib.pyplot as plt
-import csv
-import datetime
 
-async def joinChartGenerator(ctx):
-    totalUsers = 0
+async def join_chart_generator(ctx):
+    """
+    Generates a chart of when everyone joined
+    """
+    total_users = 0
     dates = []
     #df = pd.DataFrame(columns=['number', 'joindate'])
     print("Gathering Users")
-    allUsers = ctx.guild.members
-    for i in allUsers:
-        totalUsers += 1
+    all_users = ctx.guild.members
+    for i in all_users:
+        total_users += 1
         dates.append(i.joined_at)
         #df[totalUsers] = i.joined_at
         #print(f"User {i.name} joined at {i.joined_at}")
-    print(f"Total Users: {str(totalUsers)}")
+    print(f"Total Users: {str(total_users)}")
     dates.sort()
     #print(dates)
 
     #Plot with matplotlib
     #y axis will be members
-    y = range(totalUsers)
+    y = range(total_users)
     plt.suptitle(ctx.guild.name)
     plt.ylabel("Number of Users")
     plt.xlabel("Join Date")
@@ -32,14 +41,17 @@ async def joinChartGenerator(ctx):
     #Upload to discord
     await ctx.send(file=discord.File('plot.png'))
 
-async def userCSVgenerator(ctx):
-    totalUsers = 0
+async def user_csv_generator(ctx):
+    """
+    Generates a csv of when everyone joined
+    """
+    total_users = 0
     dates = {}
     #df = pd.DataFrame(columns=['number', 'joindate'])
     print("Gathering Users for CSV")
-    allUsers = ctx.guild.members
-    for i in allUsers:
-        totalUsers += 1
+    all_users = ctx.guild.members
+    for i in all_users:
+        total_users += 1
         name = str(i.name) + '#' + str(i.discriminator)
         joindate = i.joined_at
         dates[name] = joindate.strftime("%x %X")
@@ -53,7 +65,7 @@ async def userCSVgenerator(ctx):
             writer.writerow([key, value])
 
     #Upload to discord
-    d = datetime.datetime.today()
-    message = str(totalUsers) + " users as of " + str(d)
+    d = datetime.today()
+    message = str(total_users) + " users as of " + str(d)
     await ctx.send(message)
     await ctx.send(file=discord.File('userJoinTimes.csv'))
