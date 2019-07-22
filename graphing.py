@@ -77,18 +77,26 @@ async def printer_graph_generator(ctx):
     """
     #Get a dictionary with each role and the amount of members
     all_roles = {}
-    with open('ignored_roles.txt', 'w') as f:
+    ignored_roles = []
 
-        for role in ctx.guild.roles:
-            #Ignore these roles
-            #if role.name in ignored_roles
-            #member_amount = len(role.members)
-            #if member_amount >= 5:
-            #    all_roles[role.name] = len(role.members)
-            f.write(f"{role.name}\n")
+    with open('ignored_roles.txt', 'r') as role_file:
+        #Create a list of illegal roles
+        for line in role_file:
+            ignored_roles.append(line[:-1])
 
-    print(all_roles)
+    #print(ignored_roles)
+
+    for role in ctx.guild.roles:
+        #Ignore these roles
+        if role.name not in ignored_roles:
+            member_amount = len(role.members)
+            if member_amount >= 5:
+                all_roles[role.name] = len(role.members)
+
+    #print(all_roles)
+
     #Generate a bar graph with the data
+
     #???
     #Profit
-
+    
