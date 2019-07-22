@@ -105,10 +105,13 @@ async def printer_graph_generator(ctx):
 
     y_pos = range(len(printer_names))
 
+    today = datetime.now()
+    today_string = today.strftime("%x")
+
     plt.bar(y_pos, printer_amounts, align='center', color='orange')
     plt.xticks(y_pos, printer_names, rotation=90)
     plt.ylabel('Number of Users')
-    plt.title(f"Printer Usage as of {datetime.today()}")
+    plt.title(f"Printer Usage as of {today_string}")
     plt.tight_layout()
     plt.grid(axis='y')
 
