@@ -73,7 +73,7 @@ async def user_csv_generator(ctx):
 async def printer_graph_generator(ctx):
     """
     Generates a graph of users in each role, while ignoring some
-    Returns none, uploads image to discord
+    Returns filename of graph
     """
     #Get a dictionary with each role and the amount of members
     all_roles = {}
@@ -96,7 +96,23 @@ async def printer_graph_generator(ctx):
     #print(all_roles)
 
     #Generate a bar graph with the data
+    printer_amounts = sorted(all_roles.values())
+    printer_amounts.reverse()
+    printer_names = sorted(all_roles, key=all_roles.get)
+    printer_names.reverse()
+    #print(printer_amounts)
+    #print(printer_names)
+
+    y_pos = range(len(printer_names))
+
+    plt.bar(y_pos, printer_amounts, align='center')
+    plt.xticks(y_pos, printer_names)
+    plt.ylabel('Number of Users')
+    plt.title("Printer Usage")
 
     #???
+    file_name = "printer_plot.png"
+    plt.savefig(file_name)
+
     #Profit
-    
+    return file_name
