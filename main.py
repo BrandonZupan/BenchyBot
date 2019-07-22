@@ -79,7 +79,7 @@ async def hello(ctx):
     """
     Says hello to the user
     """
-    await ctx.send("Hello " + str(ctx.author).split('#')[0] + '!')
+    await ctx.channel.send("Hello " + str(ctx.author).split('#')[0] + '!')
 
 
 @CLIENT.command(name='usergraph', hidden=True)
@@ -121,7 +121,7 @@ async def cc_command(ctx, *args):
             title="Command: !cc",
             description=command_list,
             color=0xBF5700)
-        await ctx.send(embed=embed)
+        await ctx.channel.send(embed=embed)
 
     #If one argument, delete that command
     if len(args) == 1:
@@ -136,11 +136,11 @@ async def cc_command(ctx, *args):
     #If 2 or more arguments, combine them and modify database
     if len(args) >= 2:
         #newCC = CCCommand(args[0], ' '.join(args[1:]))
-        #await ctx.send("Command " + newCC.name + " with link " + newCC.responce)
+        #await ctx.channel.send("Command " + newCC.name + " with link " + newCC.responce)
         new_cc = CCCommand(name=args[0].lower(), responce=' '.join(args[1:]))
         COMMANDDB.merge(new_cc)
         COMMANDDB.commit()
-        #await ctx.send("Command " + newCC.name + " with link " + newCC.responce)
+        #await ctx.channel.send("Command " + newCC.name + " with link " + newCC.responce)
         await ctx.message.add_reaction('👌')
         logging.info("%s added %s with responce %s", ctx.author.name, new_cc.name, new_cc.responce)
 
@@ -158,7 +158,7 @@ async def list_commands(ctx):
         title="Command: !cc",
         description=command_list,
         color=0xBF5700)
-    await ctx.send(embed=embed)
+    await ctx.channel.send(embed=embed)
 
 @CLIENT.event
 async def on_command_error(ctx, error):
@@ -166,14 +166,14 @@ async def on_command_error(ctx, error):
     Parses command database since library sees them as an error
     """
     if isinstance(error, commands.errors.CommandNotFound):
-        #await ctx.send(ctx.message.content)
+        #await ctx.channel.send(ctx.message.content)
         command = ctx.message.content.lower()
         command = command.split(" ", 1)
 
         #Look if its in the database
         for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
             if instance.name == command[0][1:]:
-                await ctx.send(instance.responce)
+                await ctx.channel.send(instance.responce)
                 return
     else:
         print(error)
@@ -183,16 +183,23 @@ async def on_message(ctx):
     """
     Checks if there is a benchy in the image
     """
-    #Only do this in command sandbox for now
-    if ctx.channel.id == 532781500471443477:
-        #Check if there's an attachment
-        if ctx.attachments:
-            for i in ctx.attachments:
-                if i.height:
-                    save_path = f"temp/{i.filename}"
-                    await i.save(save_path)
-                    benchy_amount = is_benchy(save_path)
-                    print(benchy_amount)
+    #Only do this in command sandbox or benchy-testing for now
+    if ctx.channel.id == 602665906388074496 or 339978089411117076:
+        #Make sure it isn't the bot's message
+        if ctx.author != CLIENT.user:
+            #Check if there's an attachment
+            if ctx.attachments:
+                for i in ctx.attachments:
+                    if i.height:
+                        save_path = f"temp/{i.filename}"
+                        await i.save(save_path)
+                        benchy_amount = is_benchy(save_path)
+                        await ctx.channel.send(f"Found {benchy_amount[0]} benchy(s)")
+                        if benchy_amount[0] > 0:
+                            await ctx.channel.send(file=discord.File(benchy_amount[1]))
+
+    #do other commands
+    await CLIENT.process_commands(ctx)
 
 
 
