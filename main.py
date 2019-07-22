@@ -17,7 +17,7 @@ import graphing
 logging.basicConfig(level=logging.INFO)
 
 #SQL Database
-ENGINE = create_engine('sqlite:///:memory:', echo=False)
+ENGINE = create_engine('sqlite:///responces.db', echo=False)
 BASE = declarative_base()
 
 class CCCommand(BASE):
