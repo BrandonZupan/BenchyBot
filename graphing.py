@@ -115,4 +115,4 @@ async def printer_graph_generator(ctx):
     plt.savefig(file_name)
 
     #Profit
-    return file_name
+    await ctx.send(file=discord.File(file_name))
