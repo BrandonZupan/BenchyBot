@@ -16,6 +16,8 @@ specialCommands.txt
 
 .pylintrc
 
+ignored_roles.txt
+
 #image files for machine learning
 benchydetection
 HopefullyBenchys

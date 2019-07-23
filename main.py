@@ -10,8 +10,8 @@ from discord.ext import commands
 from sqlalchemy import create_engine, Column, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from joinGraph import joinChartGenerator, userCSVgenerator
 from BenchyDetector import is_benchy
+import graphing
 
 
 #Start logging
@@ -88,7 +88,7 @@ async def user_graph(ctx):
     """
     Generates a graph of when users joined
     """
-    await joinChartGenerator(ctx)
+    await graphing.join_chart_generator(ctx)
 
 @CLIENT.command(name='userlist', hidden=True)
 @commands.check(is_admin)
@@ -97,7 +97,16 @@ async def user_list(ctx):
     """
     Generates a CSV of when all members joined
     """
-    await userCSVgenerator(ctx)
+    await graphing.user_csv_generator(ctx)
+
+@CLIENT.command(name='printergraph', hidden=True)
+@commands.check(is_admin)
+async def printergraph(ctx):
+    """
+    Generates a graph of all printers
+    Restricted to admin perms
+    """
+    await graphing.printer_graph_generator(ctx)
 
 @CLIENT.command(name='cc', hidden=True)
 @commands.check(is_admin)
