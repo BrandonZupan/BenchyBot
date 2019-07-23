@@ -193,7 +193,7 @@ async def on_message(ctx):
     Checks if there is a benchy in the image
     """
     #Only do this in command sandbox or benchy-testing for now
-    if ctx.channel.id == 602665906388074496 or 339978089411117076:
+    if ctx.channel.id == 602665906388074496:
         #Make sure it isn't the bot's message
         if ctx.author != CLIENT.user:
             #Check if there's an attachment
