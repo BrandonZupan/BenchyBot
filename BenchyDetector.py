@@ -29,8 +29,7 @@ def is_benchy(image_path):
     directory = "HopefullyBenchys"  #where we save dem benchys
     benchy = BenchyData(image=cv2.imread(image_path, cv2.COLOR_BGR2GRAY))
 
-    #Delete image after it is read
-    #remove(image_path)
+
 
     detections = benchy.cascade.detectMultiScale(
         image=benchy.image,
@@ -38,18 +37,22 @@ def is_benchy(image_path):
         minNeighbors=10
     )
 
+    #Save original image for comparison
+    time = datetime.now()
+    filename = directory + '/' + time.strftime("2019%m%d%H%M%S")
+
+    cv2.imwrite(filename + '-og.png', benchy.image)
+
     # Draw a rectangle around the benchys
     for (x, y, w, h) in detections:
         cv2.rectangle(benchy.image, (x, y), (x+w, y+h), (0, 255, 0), 2)
-    time = datetime.now()
-    filename = directory + '/' + time.strftime("2019%m%d%H%M%S") + '.png'
+
     print(filename)
-    cv2.imwrite(filename, benchy.image)
+    cv2.imwrite(filename + '.png', benchy.image)
     cv2.waitKey(0)
 
-    #Turn into cv2 image
-    #Generate the amount of benchys in the image
-    #Return the amount of benchys
+    #Delete image after it is read
+    remove(image_path)
 
     return (len(detections), filename)
 
