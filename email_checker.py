@@ -4,6 +4,11 @@ Brandon Zupan
 Reads emails and sends them to a specific Discord Channel
 """
 
+#To do:
+    #Make emails show up on discord when recieved
+    #Save which email was previously shown and post any that haven't been posted yet
+    #Add ability to reply through discord
+
 import imapclient
 import pyzmail
 
