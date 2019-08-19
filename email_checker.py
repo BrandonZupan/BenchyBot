@@ -77,7 +77,14 @@ def run_idle(current_session):
         except IndexError:
             print("There was an index error.  Ignoring...")
 
-account = gmail_login()
+def discord_idle():
+    """
+    Logs in and starts idle for discord
+    """
+    discord_account = gmail_login()
+    run_idle(discord_account)
 
-run_idle(account)
+#account = gmail_login()
+
+#run_idle(account)
 #print_message(account, 6)

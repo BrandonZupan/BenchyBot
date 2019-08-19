@@ -11,7 +11,7 @@ from sqlalchemy import create_engine, Column, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import graphing
-
+from email_checker import discord_idle
 
 #Start logging
 logging.basicConfig(level=logging.INFO)
@@ -167,6 +167,14 @@ async def list_commands(ctx):
         description=command_list,
         color=0xBF5700)
     await ctx.send(embed=embed)
+
+@CLIENT.command(name='startidle', hidden=True)
+@commands.check(is_admin)
+async def startidle(ctx):
+    """
+    Starts idle mode on the email client
+    """
+    await discord_idle()
 
 @CLIENT.event
 async def on_command_error(ctx, error):
