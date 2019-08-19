@@ -9,11 +9,10 @@ Reads emails and sends them to a specific Discord Channel
     #Save which email was previously shown and post any that haven't been posted yet
     #Add ability to reply through discord
 
-import asyncio
 import imapclient
 import pyzmail
 
-async def gmail_login(account_var):
+def gmail_login():
     """
     Log into gmail with provided key
     Returns object used to access account
@@ -33,9 +32,9 @@ async def gmail_login(account_var):
     print(f"Logged into {GMAIL[0]} for accessing stuff")
 
     #Return imapObj so the account is accessible
-    account_var = imapObj
+    return imapObj
 
-async def print_message(imapObj, uid):
+def print_message(imapObj, uid):
     """
     Reads a hello world message
     """
@@ -53,7 +52,7 @@ async def print_message(imapObj, uid):
     message_text = message.text_part.get_payload().decode(message.text_part.charset)
     print(message_text)
 
-async def run_idle(current_session):
+def run_idle(current_session):
     """
     Constantly checks for emails
     """
@@ -78,13 +77,7 @@ async def run_idle(current_session):
         except IndexError:
             print("There was an index error.  Ignoring...")
 
-async def main():
+account = gmail_login()
 
-    account = imapclient.IMAPClient
-    await gmail_login(account)
-
-    await run_idle(account)
-    #print_message(account, 6)
-
-if __name__ == "__main__":
-    asyncio.run(main())
+run_idle(account)
+#print_message(account, 6)
