@@ -5,6 +5,8 @@ Runs the main code for the 3D Printing Discord's Benchy Bot
 """
 
 import logging
+import asyncio
+import concurrent.futures
 import discord
 from discord.ext import commands
 from sqlalchemy import create_engine, Column, String
@@ -174,7 +176,22 @@ async def startidle(ctx):
     """
     Starts idle mode on the email client
     """
-    await discord_idle()
+    global idle
+    await ctx.send("Starting IDLE mode, exit on console with ^C")
+    loop = asyncio.get_running_loop()
+    idle = loop.run_in_executor(None, discord_idle)
+    #print(idle)
+
+@CLIENT.command(name='stopidle', hidden=True)
+@commands.check(is_admin)
+async def stopidle(ctx):
+    """
+    Stops idle mode on the email client, or at least should lmao
+    """
+    global idle
+    await ctx.send("Stopping idle")
+    idle.cancel()
+
 
 @CLIENT.event
 async def on_command_error(ctx, error):
