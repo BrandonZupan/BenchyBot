@@ -14,11 +14,14 @@ specialCommands.txt
 *.jpg
 *.csv
 
+__pycache__
 *.pyc
 
 .pylintrc
 
 ignored_roles.txt
+
+.vscode
 
 #image files for machine learning
 benchydetection
