@@ -5,9 +5,9 @@ Reads emails and sends them to a specific Discord Channel
 """
 
 #To do:
-    #Make emails show up on discord when recieved
-    #Save which email was previously shown and post any that haven't been posted yet
-    #Add ability to reply through discord
+    #Figure out how to kill threads
+    #Save the UID of last email that was posted
+    #Run every 10 minutes and output to channel
 
 import imapclient
 import pyzmail
@@ -29,7 +29,7 @@ def gmail_login():
 
     #Select inbox
     imapObj.select_folder('INBOX')
-    print(f"Logged into {GMAIL[0]} for accessing stuff")
+    #print(f"Logged into {GMAIL[0]} for accessing stuff")
 
     #Return imapObj so the account is accessible
     return imapObj
@@ -84,7 +84,37 @@ def discord_idle():
     discord_account = gmail_login()
     run_idle(discord_account)
 
+def get_recent_emails():
+    """
+    Returns a list of untracked emails
+    """
+    #Log into email account
+    account = gmail_login()
+
+    #Get a list of all emails
+    UIDs = account.search(['ALL'])
+
+    #Find emails after a given UID
+    lastUID = 9
+    UIDs = UIDs[lastUID:]
+
+    message_list = list()
+    #Generate list of tuples
+    for uid in UIDs:
+        #Tuple will be (UID, Sender, Subject, Message)
+        raw_messages = account.fetch(uid, [b'BODY[]'])
+        message = pyzmail.PyzMessage.factory(raw_messages[uid][b'BODY[]'])
+        message_list.append((uid,
+            message.get_address('from'),
+            message.get_subject(),
+            message.text_part.get_payload().decode(message.text_part.charset)))
+
+    account.logout()
+    return message_list
 #account = gmail_login()
 
 #run_idle(account)
 #print_message(account, 6)
+
+#messages = get_recent_emails()
+#print(messages)

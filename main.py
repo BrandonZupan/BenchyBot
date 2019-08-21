@@ -13,7 +13,7 @@ from sqlalchemy import create_engine, Column, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import graphing
-from email_checker import discord_idle
+from email_checker import discord_idle, get_recent_emails
 
 #Start logging
 logging.basicConfig(level=logging.INFO)
@@ -191,6 +191,21 @@ async def stopidle(ctx):
     global idle
     await ctx.send("Stopping idle")
     idle.cancel()
+
+@CLIENT.command(name='checkemails', hidden=True)
+@commands.check(is_admin)
+async def checkemails(ctx):
+    """
+    Checks for new emails and outputs any to #email-feed
+    """
+    loop = asyncio.get_running_loop()
+    emails = await loop.run_in_executor(None, get_recent_emails)
+    for email in emails:
+        #print(email)
+        embed = discord.Embed(title=email[1][1], color = 0xbf5700)
+        embed.add_field(name=email[2], value=email[3], inline=True)
+        embed.set_footer(text=f"UID: {email[0]}")
+        await ctx.send(embed=embed)
 
 
 @CLIENT.event
