@@ -13,7 +13,7 @@ from sqlalchemy import create_engine, Column, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import graphing
-from email_checker import discord_idle, get_recent_emails
+from email_checker import discord_idle, get_recent_emails, test_function
 
 #Start logging
 logging.basicConfig(level=logging.INFO)
@@ -202,11 +202,21 @@ async def checkemails(ctx):
     emails = await loop.run_in_executor(None, get_recent_emails)
     for email in emails:
         #print(email)
-        embed = discord.Embed(title=email[1][1], color = 0xbf5700)
+        embed = discord.Embed(title=email[1][1], color=0xbf5700)
         embed.add_field(name=email[2], value=email[3], inline=True)
         embed.set_footer(text=f"UID: {email[0]}")
         await ctx.send(embed=embed)
 
+@CLIENT.command(name='threadtest', hidden=True)
+@commands.check(is_admin)
+async def threadtest(ctx):
+    i = 2
+    while True:
+        print(f"Loop {str(i)}")
+        loop = asyncio.get_running_loop()
+        test = await loop.run_in_executor(None, test_function)
+        await asyncio.sleep(1)
+        i += 1
 
 @CLIENT.event
 async def on_command_error(ctx, error):

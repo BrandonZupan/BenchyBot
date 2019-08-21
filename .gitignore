@@ -20,6 +20,8 @@ specialCommands.txt
 
 ignored_roles.txt
 
+.vscode
+
 #image files for machine learning
 benchydetection
 temp

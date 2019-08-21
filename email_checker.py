@@ -111,6 +111,10 @@ def get_recent_emails():
 
     account.logout()
     return message_list
+    
+def test_function():
+    print("New thread")
+
 #account = gmail_login()
 
 #run_idle(account)
