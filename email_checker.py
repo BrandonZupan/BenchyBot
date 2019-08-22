@@ -5,12 +5,29 @@ Reads emails and sends them to a specific Discord Channel
 """
 
 #To do:
-    #Figure out how to kill threads
     #Save the UID of last email that was posted
     #Run every 10 minutes and output to channel
 
 import imapclient
 import pyzmail
+
+class EmailData():
+    """Stores data of an email to be returned"""
+    """
+    def __init__(self, uid, sender, subject, body):
+        self.uid = uid
+        self.sender = sender
+        self.subject = subject
+        self.body = body
+    """
+
+    def __init__(self, message, uid):
+        """Gathers data from a message"""
+        self.uid = uid
+        self.sender = message.get_address('from')
+        self.subject = message.get_subject()
+        self.body = message.text_part.get_payload().decode(message.text_part.charset)
+
 
 def gmail_login():
     """
@@ -84,7 +101,7 @@ def discord_idle():
     discord_account = gmail_login()
     run_idle(discord_account)
 
-def get_recent_emails():
+def get_recent_emails(last_uid):
     """
     Returns a list of untracked emails
     """
@@ -94,9 +111,14 @@ def get_recent_emails():
     #Get a list of all emails
     UIDs = account.search(['ALL'])
 
-    #Find emails after a given UID
-    lastUID = 9
-    UIDs = UIDs[lastUID:]
+    #Get last recorded email id
+    if last_uid == UIDs[-1]:
+        #no new emails
+        account.logout()
+        return 0
+
+    #There are new emails to be posted
+    UIDs = UIDs[last_uid:]
 
     message_list = list()
     #Generate list of tuples
@@ -104,10 +126,11 @@ def get_recent_emails():
         #Tuple will be (UID, Sender, Subject, Message)
         raw_messages = account.fetch(uid, [b'BODY[]'])
         message = pyzmail.PyzMessage.factory(raw_messages[uid][b'BODY[]'])
-        message_list.append((uid,
-            message.get_address('from'),
-            message.get_subject(),
-            message.text_part.get_payload().decode(message.text_part.charset)))
+        #message_list.append((uid,
+        #    message.get_address('from'),
+        #    message.get_subject(),
+        #    message.text_part.get_payload().decode(message.text_part.charset)))
+        message_list.append(EmailData(message, uid))
 
     account.logout()
     return message_list
@@ -122,3 +145,6 @@ def test_function():
 
 #messages = get_recent_emails()
 #print(messages)
+
+#for i in get_recent_emails(8):
+#    print(f"UID:{str(i.uid)}, {i.subject}, {i.sender}, {i.body}")

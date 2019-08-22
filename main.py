@@ -6,7 +6,8 @@ Runs the main code for the 3D Printing Discord's Benchy Bot
 
 import logging
 import asyncio
-import concurrent.futures
+#import concurrent.futures
+from functools import partial
 import discord
 from discord.ext import commands
 from sqlalchemy import create_engine, Column, String
@@ -194,18 +195,24 @@ async def stopidle(ctx):
 
 @CLIENT.command(name='checkemails', hidden=True)
 @commands.check(is_admin)
-async def checkemails(ctx):
+async def checkemails(ctx, last_uid):
     """
     Checks for new emails and outputs any to #email-feed
     """
     loop = asyncio.get_running_loop()
-    emails = await loop.run_in_executor(None, get_recent_emails)
-    for email in emails:
-        #print(email)
-        embed = discord.Embed(title=email[1][1], color=0xbf5700)
-        embed.add_field(name=email[2], value=email[3], inline=True)
-        embed.set_footer(text=f"UID: {email[0]}")
-        await ctx.send(embed=embed)
+
+    #Create partial function to pass arguments
+    email_function = partial(get_recent_emails, int(last_uid))
+    emails = await loop.run_in_executor(None, email_function)
+
+    #Only post if there were emails
+    if emails:
+        for email in emails:
+            #print(email)
+            embed = discord.Embed(title=email.sender[1], color=0xbf5700)
+            embed.add_field(name=email.subject, value=email.body, inline=True)
+            embed.set_footer(text=f"UID: {email.uid}")
+            await ctx.send(embed=embed)
 
 @CLIENT.command(name='threadtest', hidden=True)
 @commands.check(is_admin)
