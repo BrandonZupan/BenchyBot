@@ -13,13 +13,6 @@ import pyzmail
 
 class EmailData():
     """Stores data of an email to be returned"""
-    """
-    def __init__(self, uid, sender, subject, body):
-        self.uid = uid
-        self.sender = sender
-        self.subject = subject
-        self.body = body
-    """
 
     def __init__(self, message, uid):
         """Gathers data from a message"""
@@ -112,13 +105,16 @@ def get_recent_emails(last_uid):
     UIDs = account.search(['ALL'])
 
     #Get last recorded email id
-    if last_uid == UIDs[-1]:
+    last_recieved = UIDs[-1]
+    if last_uid >= last_recieved:
         #no new emails
         account.logout()
         return 0
 
     #There are new emails to be posted
-    UIDs = UIDs[last_uid:]
+    last_index = UIDs.index(last_uid) + 1
+
+    UIDs = UIDs[last_index:]
 
     message_list = list()
     #Generate list of tuples

@@ -47,36 +47,56 @@ benchybot = commands.Bot(command_prefix='!')
 class EmailChecker(commands.Cog):
     """Checks email every certain amount of minutes"""
     def __init__(self, bot):
-        self.last_uid = 10
-        self.email_channel = benchybot.get_channel(608703043537600562)
-        self.loop = asyncio.get_running_loop()
+        self.uid_file = 'email_data.txt'
+        self.last_uid = self.get_last_uid()
+        #self.email_channel = benchybot.get_channel(608703043537600562)
+        #self.loop = asyncio.get_running_loop()
         self.bot = bot
         self.email_loop.start()
 
     def cog_unload(self):
         self.email_loop.cancel()
 
-    @tasks.loop(minutes=1)
+    def get_last_uid(self):
+        with open(self.uid_file, 'r') as f:
+            #Finish this, return the value in the file
+            new_uid = int(f.read())
+            print(new_uid)
+            return new_uid
+
+    @tasks.loop(seconds=30)
     async def email_loop(self):
         """
         Checks for new emails and outputs any to #email-feed
         """
-        #loop = asyncio.get_running_loop()
+        print(self.last_uid)
+        loop = asyncio.get_running_loop()
 
         #Create partial function to pass arguments
         email_function = partial(get_recent_emails, self.last_uid)
-        emails = await self.loop.run_in_executor(None, email_function)
+        emails = await loop.run_in_executor(None, email_function)
 
         #Only post if there were emails
         if emails:
+
+            #Get channel
+            email_channel = benchybot.get_channel(608703043537600562)
+
             for email in emails:
                 #print(email)
                 embed = discord.Embed(title=email.sender[1], color=0xbf5700)
                 embed.add_field(name=email.subject, value=email.body, inline=True)
                 embed.set_footer(text=f"UID: {email.uid}")
-                await self.email_channel.send(embed=embed)
-        else:
-            await self.email_channel.send("No new emails")
+                await email_channel.send(embed=embed)
+
+                logging.info("Sent Email UID %s to email channel", str(email.uid))
+
+                #Save uid so it isn't posted twice
+                self.last_uid = email.uid
+                with open(self.uid_file, 'w') as f:
+                    f.write(str(self.last_uid))
+        #else:
+        #    print("No new emails")
 
     @email_loop.before_loop
     async def before_printer(self):
@@ -96,12 +116,16 @@ class MyCog(commands.Cog):
         print(self.index)
         self.index += 1
 
+benchybot.add_cog(EmailChecker(benchybot))
+
 @benchybot.event
 async def on_ready():
     """
     Runs when bot connects
     """
     print('We have logged in as {0.user}'.format(benchybot))
+
+    
 
 async def is_admin(ctx):
     """
