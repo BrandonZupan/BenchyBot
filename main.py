@@ -9,7 +9,7 @@ import asyncio
 #import concurrent.futures
 from functools import partial
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from sqlalchemy import create_engine, Column, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -42,14 +42,14 @@ SESSION = sessionmaker(bind=ENGINE)
 COMMANDDB = SESSION()
 
 #Discord client
-CLIENT = commands.Bot(command_prefix='!')
+benchybot = commands.Bot(command_prefix='!')
 
-@CLIENT.event
+@benchybot.event
 async def on_ready():
     """
     Runs when bot connects
     """
-    print('We have logged in as {0.user}'.format(CLIENT))
+    print('We have logged in as {0.user}'.format(benchybot))
 
 async def is_admin(ctx):
     """
@@ -76,7 +76,7 @@ async def in_secret_channel(ctx):
 ###Commands###
 ##############
 
-@CLIENT.command(name='hello')
+@benchybot.command(name='hello')
 async def hello(ctx):
     """
     Says hello to the user
@@ -84,7 +84,7 @@ async def hello(ctx):
     await ctx.send("Hello " + str(ctx.author).split('#')[0] + '!')
 
 
-@CLIENT.command(name='usergraph', hidden=True)
+@benchybot.command(name='usergraph', hidden=True)
 @commands.check(is_admin)
 async def user_graph(ctx):
     """
@@ -92,7 +92,7 @@ async def user_graph(ctx):
     """
     await graphing.join_chart_generator(ctx)
 
-@CLIENT.command(name='userlist', hidden=True)
+@benchybot.command(name='userlist', hidden=True)
 @commands.check(is_admin)
 @commands.check(in_secret_channel)
 async def user_list(ctx):
@@ -101,7 +101,7 @@ async def user_list(ctx):
     """
     await graphing.user_csv_generator(ctx)
 
-@CLIENT.command(name='printergraph', hidden=True)
+@benchybot.command(name='printergraph', hidden=True)
 @commands.check(is_admin)
 async def printergraph(ctx):
     """
@@ -110,7 +110,7 @@ async def printergraph(ctx):
     """
     await graphing.printer_graph_generator(ctx)
 
-@CLIENT.command(name='cc', hidden=True)
+@benchybot.command(name='cc', hidden=True)
 @commands.check(is_admin)
 @commands.check(in_secret_channel)
 async def cc_command(ctx, *args):
@@ -155,7 +155,7 @@ async def cc_command(ctx, *args):
         await ctx.message.add_reaction('👌')
         logging.info("%s added %s with responce %s", ctx.author.name, new_cc.name, new_cc.responce)
 
-@CLIENT.command(name='listcommands', hidden=True)
+@benchybot.command(name='listcommands', hidden=True)
 @commands.check(is_admin)
 @commands.check(in_secret_channel)
 async def list_commands(ctx):
@@ -171,7 +171,7 @@ async def list_commands(ctx):
         color=0xBF5700)
     await ctx.send(embed=embed)
 
-@CLIENT.command(name='startidle', hidden=True)
+@benchybot.command(name='startidle', hidden=True)
 @commands.check(is_admin)
 async def startidle(ctx):
     """
@@ -183,7 +183,7 @@ async def startidle(ctx):
     idle = loop.run_in_executor(None, discord_idle)
     #print(idle)
 
-@CLIENT.command(name='stopidle', hidden=True)
+@benchybot.command(name='stopidle', hidden=True)
 @commands.check(is_admin)
 async def stopidle(ctx):
     """
@@ -193,7 +193,7 @@ async def stopidle(ctx):
     await ctx.send("Stopping idle")
     idle.cancel()
 
-@CLIENT.command(name='checkemails', hidden=True)
+@benchybot.command(name='checkemails', hidden=True)
 @commands.check(is_admin)
 async def checkemails(ctx, last_uid):
     """
@@ -213,8 +213,10 @@ async def checkemails(ctx, last_uid):
             embed.add_field(name=email.subject, value=email.body, inline=True)
             embed.set_footer(text=f"UID: {email.uid}")
             await ctx.send(embed=embed)
+    else:
+        await ctx.send("No new emails")
 
-@CLIENT.command(name='threadtest', hidden=True)
+@benchybot.command(name='threadtest', hidden=True)
 @commands.check(is_admin)
 async def threadtest(ctx):
     i = 2
@@ -225,7 +227,7 @@ async def threadtest(ctx):
         await asyncio.sleep(1)
         i += 1
 
-@CLIENT.event
+@benchybot.event
 async def on_command_error(ctx, error):
     """
     Parses command database since library sees them as an error
@@ -246,4 +248,4 @@ async def on_command_error(ctx, error):
 
 with open('key.txt', 'r') as keyFile:
     KEY = keyFile.read()
-CLIENT.run(KEY)
+benchybot.run(KEY)
