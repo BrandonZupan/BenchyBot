@@ -87,12 +87,6 @@ def run_idle(current_session):
         except IndexError:
             print("There was an index error.  Ignoring...")
 
-def discord_idle():
-    """
-    Logs in and starts idle for discord
-    """
-    discord_account = gmail_login()
-    run_idle(discord_account)
 
 def get_recent_emails(last_uid):
     """
@@ -130,17 +124,3 @@ def get_recent_emails(last_uid):
 
     account.logout()
     return message_list
-    
-def test_function():
-    print("New thread")
-
-#account = gmail_login()
-
-#run_idle(account)
-#print_message(account, 6)
-
-#messages = get_recent_emails()
-#print(messages)
-
-#for i in get_recent_emails(8):
-#    print(f"UID:{str(i.uid)}, {i.subject}, {i.sender}, {i.body}")

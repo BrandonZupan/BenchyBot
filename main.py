@@ -14,7 +14,7 @@ from sqlalchemy import create_engine, Column, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import graphing
-from email_checker import discord_idle, get_recent_emails, test_function
+from email_checker import get_recent_emails
 
 #Start logging
 logging.basicConfig(level=logging.INFO)
@@ -253,33 +253,14 @@ async def list_commands(ctx):
         color=0xBF5700)
     await ctx.send(embed=embed)
 
-@benchybot.command(name='startidle', hidden=True)
-@commands.check(is_admin)
-async def startidle(ctx):
-    """
-    Starts idle mode on the email client
-    """
-    global idle
-    await ctx.send("Starting IDLE mode, exit on console with ^C")
-    loop = asyncio.get_running_loop()
-    idle = loop.run_in_executor(None, discord_idle)
-    #print(idle)
-
-@benchybot.command(name='stopidle', hidden=True)
-@commands.check(is_admin)
-async def stopidle(ctx):
-    """
-    Stops idle mode on the email client, or at least should lmao
-    """
-    global idle
-    await ctx.send("Stopping idle")
-    idle.cancel()
-
+#Disable command
+@commands.check(False)
 @benchybot.command(name='checkemails', hidden=True)
 @commands.check(is_admin)
 async def checkemails(ctx, last_uid):
     """
     Checks for new emails and outputs any to #email-feed
+    Currently disabled
     """
     loop = asyncio.get_running_loop()
 
@@ -298,16 +279,6 @@ async def checkemails(ctx, last_uid):
     else:
         await ctx.send("No new emails")
 
-@benchybot.command(name='threadtest', hidden=True)
-@commands.check(is_admin)
-async def threadtest(ctx):
-    i = 2
-    while True:
-        print(f"Loop {str(i)}")
-        loop = asyncio.get_running_loop()
-        test = await loop.run_in_executor(None, test_function)
-        await asyncio.sleep(1)
-        i += 1
 
 @benchybot.event
 async def on_command_error(ctx, error):
