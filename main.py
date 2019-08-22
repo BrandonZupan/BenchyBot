@@ -58,13 +58,19 @@ class EmailChecker(commands.Cog):
         self.email_loop.cancel()
 
     def get_last_uid(self):
-        with open(self.uid_file, 'r') as f:
-            #Finish this, return the value in the file
-            new_uid = int(f.read())
-            print(new_uid)
-            return new_uid
+        """Reads last UID from the file"""
+        try:
+            with open(self.uid_file, 'r') as f:
+                #Finish this, return the value in the file
+                new_uid = int(f.read())
+                print(new_uid)
+                return new_uid
+        except:
+            self.cog_unload()
+            logging.warning("Failed to load file with last UID, stopped loop")
+            return None
 
-    @tasks.loop(seconds=30)
+    @tasks.loop(minutes=10)
     async def email_loop(self):
         """
         Checks for new emails and outputs any to #email-feed
@@ -80,7 +86,7 @@ class EmailChecker(commands.Cog):
         if emails:
 
             #Get channel
-            email_channel = benchybot.get_channel(608703043537600562)
+            email_channel = benchybot.get_channel(609146304307920936)
 
             for email in emails:
                 #print(email)
