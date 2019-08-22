@@ -9,7 +9,7 @@ import asyncio
 #import concurrent.futures
 from functools import partial
 import discord
-from discord.ext import commands, tasks
+from discord.ext import tasks, commands
 from sqlalchemy import create_engine, Column, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -43,6 +43,58 @@ COMMANDDB = SESSION()
 
 #Discord client
 benchybot = commands.Bot(command_prefix='!')
+
+class EmailChecker(commands.Cog):
+    """Checks email every certain amount of minutes"""
+    def __init__(self, bot):
+        self.last_uid = 10
+        self.email_channel = benchybot.get_channel(608703043537600562)
+        self.loop = asyncio.get_running_loop()
+        self.bot = bot
+        self.email_loop.start()
+
+    def cog_unload(self):
+        self.email_loop.cancel()
+
+    @tasks.loop(minutes=1)
+    async def email_loop(self):
+        """
+        Checks for new emails and outputs any to #email-feed
+        """
+        #loop = asyncio.get_running_loop()
+
+        #Create partial function to pass arguments
+        email_function = partial(get_recent_emails, self.last_uid)
+        emails = await self.loop.run_in_executor(None, email_function)
+
+        #Only post if there were emails
+        if emails:
+            for email in emails:
+                #print(email)
+                embed = discord.Embed(title=email.sender[1], color=0xbf5700)
+                embed.add_field(name=email.subject, value=email.body, inline=True)
+                embed.set_footer(text=f"UID: {email.uid}")
+                await self.email_channel.send(embed=embed)
+        else:
+            await self.email_channel.send("No new emails")
+
+    @email_loop.before_loop
+    async def before_printer(self):
+        print('email checker is waiting...')
+        await self.bot.wait_until_ready()
+
+class MyCog(commands.Cog):
+    def __init__(self):
+        self.index = 0
+        self.printer.start()
+
+    def cog_unload(self):
+        self.printer.cancel()
+
+    @tasks.loop(seconds=5.0)
+    async def printer(self):
+        print(self.index)
+        self.index += 1
 
 @benchybot.event
 async def on_ready():
