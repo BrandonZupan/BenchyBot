@@ -122,7 +122,7 @@ class MyCog(commands.Cog):
         print(self.index)
         self.index += 1
 
-benchybot.add_cog(EmailChecker(benchybot))
+#benchybot.add_cog(EmailChecker(benchybot))
 
 @benchybot.event
 async def on_ready():
@@ -206,15 +206,36 @@ async def cc_command(ctx, *args):
     Bot will confirm with :ok_hand:
     """
     #If zero arguments, list all commands
+#    if not args:
+#        command_list = str()
+#        for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
+#            command_list += instance.name + ' '
+#        embed = discord.Embed(
+#            title="Command: !cc",
+#            description=command_list,
+#            color=0xBF5700)
+#        await ctx.send(embed=embed)
+
     if not args:
-        command_list = str()
+        output = [""]
+        i = 0
         for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
-            command_list += instance.name + ' '
-        embed = discord.Embed(
-            title="Command: !cc",
-            description=command_list,
-            color=0xBF5700)
-        await ctx.send(embed=embed)
+            if (int(len(output[i])/900)) == 1:
+                i = i + 1
+                output.append("")
+            output[i] += f"{instance.name} "
+
+        i = 1
+        for message in output:
+            embed = discord.Embed(
+                title=f'CC commands, pg {i}',
+                color=0xbf5700)
+            embed.add_field(
+                name='All CC commands',
+                value = message,
+                inline=False)
+            i += 1
+            await ctx.send(embed=embed)
 
     #If one argument, delete that command
     if len(args) == 1:
