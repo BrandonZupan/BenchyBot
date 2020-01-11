@@ -15,6 +15,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import graphing
 from email_checker import get_recent_emails
+import csv
+import os
 
 #Start logging
 logging.basicConfig(level=logging.INFO)
@@ -154,10 +156,10 @@ class MyCog(commands.Cog):
 #benchybot.add_cog(EmailChecker(benchybot))
 
 class CommandDB(commands.Cog):
-    @benchybot.command(name='cc', hidden=True)
+    @commands.command(name='cc', hidden=True)
     @commands.check(is_admin)
     @commands.check(in_secret_channel)
-    async def cc_command(ctx, *args):
+    async def cc_command(self, ctx, *args):
         """
         Modifies the command database
 
@@ -209,6 +211,23 @@ class CommandDB(commands.Cog):
             #await ctx.send("Command " + newCC.name + " with link " + newCC.responce)
             await ctx.message.add_reaction('👌')
             logging.info("%s added %s with responce %s", ctx.author.name, new_cc.name, new_cc.responce)
+
+    @commands.command(name='cc-csv', hidden=True)
+    @commands.check(is_admin)
+    @commands.check(in_secret_channel)
+    async def cc_csv(self, ctx):
+        """
+        Generates a csv of the command database and posts it
+        """
+        with open('cc.csv', 'w', newline='') as csvfile:
+            csv_writer = csv.writer(csvfile)
+            for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
+                csv_writer.writerow([instance.name, instance.responce])
+
+        await ctx.send(file=discord.File('cc.csv'))
+        os.remove('cc.csv')
+
+            
 
 benchybot.add_cog(CommandDB(benchybot))
 
@@ -286,7 +305,7 @@ async def checkemails(ctx, last_uid):
         await ctx.send("No new emails")
 
 
-@benchybot.event
+#@benchybot.event
 async def on_command_error(ctx, error):
     """
     Parses command database since library sees them as an error
