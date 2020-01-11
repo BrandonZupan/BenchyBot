@@ -35,6 +35,7 @@ class CCCommand(BASE):
     #id = Column(Integer, primary_key=True)
     name = Column(String, primary_key=True)
     responce = Column(String)
+    category = Column(String)   #help or fun
 
 #Create the Table
 BASE.metadata.create_all(ENGINE)
@@ -205,12 +206,77 @@ class CommandDB(commands.Cog):
         if len(args) >= 2:
             #newCC = CCCommand(args[0], ' '.join(args[1:]))
             #await ctx.send("Command " + newCC.name + " with link " + newCC.responce)
-            new_cc = CCCommand(name=args[0].lower(), responce=' '.join(args[1:]))
+            new_cc = CCCommand(
+                name=args[0].lower(),
+                responce=' '.join(args[1:])
+                category='fun')
             COMMANDDB.merge(new_cc)
             COMMANDDB.commit()
             #await ctx.send("Command " + newCC.name + " with link " + newCC.responce)
             await ctx.message.add_reaction('👌')
             logging.info("%s added %s with responce %s", ctx.author.name, new_cc.name, new_cc.responce)
+
+    @commands.command(name='hc', hidden=True)
+    @commands.command(is_admin)
+    @commands.check(in_botspam)
+    async def hc(self, ctx, *args)
+        """
+        Lists all help commands
+        Usage: !hc
+
+        Admins can add to the database
+         Modify or create a command: !cc <command_name> <responce>
+        Delete a command: !cc <command_name>
+
+        Bot will confirm with :ok_hand:
+        
+        """
+        #If zero args, list all commands
+        if not args:
+            output = [""]
+            i = 0
+            for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
+                if instance.category == 'help':
+                    if (int(len(output[i])/900)) == 1:
+                        i = i + 1
+                        output.append("")
+                        output[i] += f"{instance.name} "
+            i = 1
+            for message in output:
+                embed = discord.Embed(
+                    title=f'Help commands, pg {i}',
+                    color=0xbf5700)
+                embed.add_field(
+                    name='All help commands',
+                    inline=False)
+                i += 1
+                await ctx.send(embed=embed)
+
+        #If one argument, delete that command (admin only)
+        if is_admin(ctx) == True:
+            if len(args) == 1:
+                victim = COMMANDDB.query(CCCommand).filter_by(name=args[0]).one()
+                COMMANDDB.delete(victom)
+                COMMANDDB.commit()
+                await ctx.message.add_reaction('👌')
+                logging.info(ctx.author.name + " deleted " + victim.name " from hc")
+
+            if len(args) >= 2:
+                new_hc = CCCommand(
+                    name=args[0].lower(),
+                    responce=' '.join(args[1:]),
+                    category='help')
+                COMMANDDB.merge(new_cc)
+                COMMANDDB.commit()
+                await ctx.message.add_reaction('👌')
+                logging.info(
+                    "%s added %s with responce %s to help",
+                    ctx.author.name,
+                    new_cc.name,
+                    new_cc.responce)
+
+
+
 
     @commands.command(name='cc-csv', hidden=True)
     @commands.check(is_admin)
