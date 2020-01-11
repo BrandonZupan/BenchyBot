@@ -124,6 +124,66 @@ class MyCog(commands.Cog):
 
 #benchybot.add_cog(EmailChecker(benchybot))
 
+class CommandDB(commands.Cog):
+    @benchybot.command(name='cc', hidden=True)
+    @commands.check(is_admin)
+    @commands.check(in_secret_channel)
+    async def cc_command(ctx, *args):
+        """
+        Modifies the command database
+
+        List commands: !cc
+        Modify or create a command: !cc <command_name> <responce>
+        Delete a command: !cc <command_name>
+
+        Bot will confirm with :ok_hand:
+        """
+        #If zero arguments, list all commands
+        if not args:
+            output = [""]
+            i = 0
+            for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
+                if (int(len(output[i])/900)) == 1:
+                    i = i + 1
+                    output.append("")
+                output[i] += f"{instance.name} "
+
+            i = 1
+            for message in output:
+                embed = discord.Embed(
+                    title=f'CC commands, pg {i}',
+                    color=0xbf5700)
+                embed.add_field(
+                    name='All CC commands',
+                    value = message,
+                    inline=False)
+                i += 1
+                await ctx.send(embed=embed)
+
+        #If one argument, delete that command
+        if len(args) == 1:
+            #print(args[0])
+            victim = COMMANDDB.query(CCCommand).filter_by(name=args[0]).one()
+            #print(victim.responce)
+            COMMANDDB.delete(victim)
+            COMMANDDB.commit()
+            await ctx.message.add_reaction('👌')
+            logging.info(ctx.author.name + " deleted " + victim.name)
+
+        #If 2 or more arguments, combine them and modify database
+        if len(args) >= 2:
+            #newCC = CCCommand(args[0], ' '.join(args[1:]))
+            #await ctx.send("Command " + newCC.name + " with link " + newCC.responce)
+            new_cc = CCCommand(name=args[0].lower(), responce=' '.join(args[1:]))
+            COMMANDDB.merge(new_cc)
+            COMMANDDB.commit()
+            #await ctx.send("Command " + newCC.name + " with link " + newCC.responce)
+            await ctx.message.add_reaction('👌')
+            logging.info("%s added %s with responce %s", ctx.author.name, new_cc.name, new_cc.responce)
+
+benchybot.add_cog(CommandDB(benchybot))
+
+
 @benchybot.event
 async def on_ready():
     """
@@ -191,72 +251,6 @@ async def printergraph(ctx):
     Restricted to admin perms
     """
     await graphing.printer_graph_generator(ctx)
-
-@benchybot.command(name='cc', hidden=True)
-@commands.check(is_admin)
-@commands.check(in_secret_channel)
-async def cc_command(ctx, *args):
-    """
-    Modifies the command database
-
-    List commands: !cc
-    Modify or create a command: !cc <command_name> <responce>
-    Delete a command: !cc <command_name>
-
-    Bot will confirm with :ok_hand:
-    """
-    #If zero arguments, list all commands
-#    if not args:
-#        command_list = str()
-#        for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
-#            command_list += instance.name + ' '
-#        embed = discord.Embed(
-#            title="Command: !cc",
-#            description=command_list,
-#            color=0xBF5700)
-#        await ctx.send(embed=embed)
-
-    if not args:
-        output = [""]
-        i = 0
-        for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
-            if (int(len(output[i])/900)) == 1:
-                i = i + 1
-                output.append("")
-            output[i] += f"{instance.name} "
-
-        i = 1
-        for message in output:
-            embed = discord.Embed(
-                title=f'CC commands, pg {i}',
-                color=0xbf5700)
-            embed.add_field(
-                name='All CC commands',
-                value = message,
-                inline=False)
-            i += 1
-            await ctx.send(embed=embed)
-
-    #If one argument, delete that command
-    if len(args) == 1:
-        #print(args[0])
-        victim = COMMANDDB.query(CCCommand).filter_by(name=args[0]).one()
-        #print(victim.responce)
-        COMMANDDB.delete(victim)
-        COMMANDDB.commit()
-        await ctx.message.add_reaction('👌')
-        logging.info(ctx.author.name + " deleted " + victim.name)
-
-    #If 2 or more arguments, combine them and modify database
-    if len(args) >= 2:
-        #newCC = CCCommand(args[0], ' '.join(args[1:]))
-        #await ctx.send("Command " + newCC.name + " with link " + newCC.responce)
-        new_cc = CCCommand(name=args[0].lower(), responce=' '.join(args[1:]))
-        COMMANDDB.merge(new_cc)
-        COMMANDDB.commit()
-        #await ctx.send("Command " + newCC.name + " with link " + newCC.responce)
-        await ctx.message.add_reaction('👌')
-        logging.info("%s added %s with responce %s", ctx.author.name, new_cc.name, new_cc.responce)
 
 @benchybot.command(name='listcommands', hidden=True)
 @commands.check(is_admin)
