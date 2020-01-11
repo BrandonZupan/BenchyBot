@@ -23,6 +23,9 @@ ignored_roles.txt
 
 .vscode
 
+#Gmail data file
+email_data.txt
+
 #image files for machine learning
 benchydetection
 temp
