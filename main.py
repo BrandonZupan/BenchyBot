@@ -259,22 +259,6 @@ async def printergraph(ctx):
     """
     await graphing.printer_graph_generator(ctx)
 
-@benchybot.command(name='listcommands', hidden=True)
-@commands.check(is_admin)
-@commands.check(in_secret_channel)
-async def list_commands(ctx):
-    """
-    Lists all commands in the database
-    """
-    command_list = str()
-    for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
-        command_list += instance.name + ' '
-    embed = discord.Embed(
-        title="Command: !cc",
-        description=command_list,
-        color=0xBF5700)
-    await ctx.send(embed=embed)
-
 #Disable command
 @commands.check(False)
 @benchybot.command(name='checkemails', hidden=True)
