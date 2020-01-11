@@ -44,6 +44,35 @@ COMMANDDB = SESSION()
 #Discord client
 benchybot = commands.Bot(command_prefix='!')
 
+
+############
+###Checks###
+############
+    
+
+async def is_admin(ctx):
+    """
+    Checks if user is an admon
+    """
+    return ctx.message.author.guild_permissions.administrator
+
+async def in_secret_channel(ctx):
+    """Checks if a command was used in a secret channel"""
+    secret_channels = {
+        'command-sandbox': 339978089411117076,
+        'srsbusiness': 525494034203017246,
+        'lets-kill-this-bot': 532781500471443477
+    }
+    used_channel = ctx.channel.id
+    for channel in secret_channels:
+        if secret_channels[channel] == used_channel:
+            return True
+
+    #It dont exist
+    return False
+
+
+
 class EmailChecker(commands.Cog):
     """Checks email every certain amount of minutes"""
     def __init__(self, bot):
@@ -191,28 +220,6 @@ async def on_ready():
     """
     print('We have logged in as {0.user}'.format(benchybot))
 
-    
-
-async def is_admin(ctx):
-    """
-    Checks if user is an admon
-    """
-    return ctx.message.author.guild_permissions.administrator
-
-async def in_secret_channel(ctx):
-    """Checks if a command was used in a secret channel"""
-    secret_channels = {
-        'command-sandbox': 339978089411117076,
-        'srsbusiness': 525494034203017246,
-        'lets-kill-this-bot': 532781500471443477
-    }
-    used_channel = ctx.channel.id
-    for channel in secret_channels:
-        if secret_channels[channel] == used_channel:
-            return True
-
-    #It dont exist
-    return False
 
 ##############
 ###Commands###
