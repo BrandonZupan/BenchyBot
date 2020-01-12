@@ -74,6 +74,19 @@ async def in_secret_channel(ctx):
     #It dont exist
     return False
 
+async def in_botspam(ctx):
+    """Checks if a command was done in a botspam channel"""
+    botspam = {
+        'command-sandbox': 339978089411117076,
+        'voice-pastebin': 471446895089156108
+    }
+    used_channel = ctx.channel.id
+    for channel in botspam:
+        if botspam[channel] == used_channel:
+            return True
+
+    ctx.send("Error: View the command list in voice-pastebin")
+    return False
 
 
 class EmailChecker(commands.Cog):
@@ -208,7 +221,7 @@ class CommandDB(commands.Cog):
             #await ctx.send("Command " + newCC.name + " with link " + newCC.responce)
             new_cc = CCCommand(
                 name=args[0].lower(),
-                responce=' '.join(args[1:])
+                responce=' '.join(args[1:]),
                 category='fun')
             COMMANDDB.merge(new_cc)
             COMMANDDB.commit()
@@ -219,7 +232,7 @@ class CommandDB(commands.Cog):
     @commands.command(name='hc', hidden=True)
     @commands.command(is_admin)
     @commands.check(in_botspam)
-    async def hc(self, ctx, *args)
+    async def hc(self, ctx, *args):
         """
         Lists all help commands
         Usage: !hc
@@ -259,7 +272,7 @@ class CommandDB(commands.Cog):
                 COMMANDDB.delete(victom)
                 COMMANDDB.commit()
                 await ctx.message.add_reaction('👌')
-                logging.info(ctx.author.name + " deleted " + victim.name " from hc")
+                logging.info(ctx.author.name + " deleted " + victim.name + " from hc")
 
             if len(args) >= 2:
                 new_hc = CCCommand(
@@ -274,6 +287,8 @@ class CommandDB(commands.Cog):
                     ctx.author.name,
                     new_cc.name,
                     new_cc.responce)
+        else: 
+            await ctx.send("Only mods and admins can add commands, please let them know if there should be a new one.  ")
 
 
 
