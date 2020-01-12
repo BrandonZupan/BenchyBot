@@ -22,7 +22,7 @@ import os
 logging.basicConfig(level=logging.INFO)
 
 #SQL Database
-ENGINE = create_engine('sqlite:///responces.db', echo=False)
+ENGINE = create_engine('sqlite:///:memory:', echo=False)
 BASE = declarative_base()
 
 class CCCommand(BASE):
@@ -85,7 +85,7 @@ async def in_botspam(ctx):
         if botspam[channel] == used_channel:
             return True
 
-    ctx.send("Error: View the command list in voice-pastebin")
+    await ctx.send("Error: View the command list in voice-pastebin")
     return False
 
 
@@ -230,8 +230,8 @@ class CommandDB(commands.Cog):
             logging.info("%s added %s with responce %s", ctx.author.name, new_cc.name, new_cc.responce)
 
     @commands.command(name='hc', hidden=True)
-    @commands.command(is_admin)
-    @commands.check(in_botspam)
+    #@commands.check(is_admin)
+    #@commands.check(in_botspam)
     async def hc(self, ctx, *args):
         """
         Lists all help commands
@@ -253,20 +253,22 @@ class CommandDB(commands.Cog):
                     if (int(len(output[i])/900)) == 1:
                         i = i + 1
                         output.append("")
-                        output[i] += f"{instance.name} "
+                    output[i] += f"{instance.name} "
             i = 1
             for message in output:
+                print(f"Messages: {message}")
                 embed = discord.Embed(
                     title=f'Help commands, pg {i}',
                     color=0xbf5700)
                 embed.add_field(
                     name='All help commands',
+                    value=message,
                     inline=False)
                 i += 1
                 await ctx.send(embed=embed)
 
         #If one argument, delete that command (admin only)
-        if is_admin(ctx) == True:
+        if await is_admin(ctx) == True:
             if len(args) == 1:
                 victim = COMMANDDB.query(CCCommand).filter_by(name=args[0]).one()
                 COMMANDDB.delete(victom)
@@ -279,14 +281,14 @@ class CommandDB(commands.Cog):
                     name=args[0].lower(),
                     responce=' '.join(args[1:]),
                     category='help')
-                COMMANDDB.merge(new_cc)
+                COMMANDDB.merge(new_hc)
                 COMMANDDB.commit()
                 await ctx.message.add_reaction('👌')
                 logging.info(
                     "%s added %s with responce %s to help",
                     ctx.author.name,
-                    new_cc.name,
-                    new_cc.responce)
+                    new_hc.name,
+                    new_hc.responce)
         else: 
             await ctx.send("Only mods and admins can add commands, please let them know if there should be a new one.  ")
 
