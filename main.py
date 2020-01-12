@@ -85,7 +85,7 @@ async def in_botspam(ctx):
         if botspam[channel] == used_channel:
             return True
 
-    await ctx.send("Error: View the command list in voice-pastebin")
+    await ctx.send("Error: View the command list in #voice-pastebin")
     return False
 
 
@@ -256,7 +256,7 @@ class CommandDB(commands.Cog):
                     output[i] += f"{instance.name} "
             i = 1
             for message in output:
-                print(f"Messages: {message}")
+                #print(f"Messages: {message}")
                 embed = discord.Embed(
                     title=f'Help commands, pg {i}',
                     color=0xbf5700)
