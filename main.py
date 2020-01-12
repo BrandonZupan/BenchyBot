@@ -231,7 +231,7 @@ class CommandDB(commands.Cog):
 
     @commands.command(name='hc', hidden=True)
     #@commands.check(is_admin)
-    #@commands.check(in_botspam)
+    @commands.check(in_botspam)
     async def hc(self, ctx, *args):
         """
         Lists all help commands
