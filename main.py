@@ -238,8 +238,8 @@ class CommandDB(commands.Cog):
         Usage: !hc
 
         Admins can add to the database
-         Modify or create a command: !cc <command_name> <responce>
-        Delete a command: !cc <command_name>
+        Modify or create a command: !hc <command_name> <responce>
+        Delete a command: !hc <command_name>
 
         Bot will confirm with :ok_hand:
         
