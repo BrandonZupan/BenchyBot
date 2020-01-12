@@ -266,6 +266,9 @@ class CommandDB(commands.Cog):
                     inline=False)
                 i += 1
                 await ctx.send(embed=embed)
+            
+            return
+            #keeps it from continuing through to the next one in a lazy way
 
         #If one argument, delete that command (admin only)
         if await is_admin(ctx) == True:
