@@ -22,7 +22,7 @@ import os
 logging.basicConfig(level=logging.INFO)
 
 #SQL Database
-ENGINE = create_engine('sqlite:///:memory:', echo=False)
+ENGINE = create_engine('sqlite:///responces-2019-1-12.db', echo=False)
 BASE = declarative_base()
 
 class CCCommand(BASE):
@@ -293,8 +293,6 @@ class CommandDB(commands.Cog):
             await ctx.send("Only mods and admins can add commands, please let them know if there should be a new one.  ")
 
 
-
-
     @commands.command(name='cc-csv', hidden=True)
     @commands.check(is_admin)
     @commands.check(in_secret_channel)
@@ -310,6 +308,42 @@ class CommandDB(commands.Cog):
         await ctx.send(file=discord.File('cc.csv'))
         os.remove('cc.csv')
 
+    @commands.command(name='import-csv', hidden=True)
+    @commands.check(is_admin)
+    @commands.check(in_secret_channel)
+    async def import_csv(self, ctx, filename):
+        """
+        ONLY RUN THIS IF YOU KNOW WHAT YOU ARE DOING
+        SO PROBABLY DON'T USE THIS COMMAND!!!!!!!!!!
+
+        Imports a csv file full of commands
+
+        Usage: !import-csv filename.csv
+        Note: File path is relative to server instance
+
+        File Format:
+        [category], [name], [responce]
+        """
+        try:
+            with open(filename, 'r', newline='') as csvfile:
+                reader = csv.reader(csvfile)
+                commands_added = 0
+                for row in reader:
+                    new_cc = CCCommand(
+                        category=row[0],
+                        name=row[1],
+                        responce=row[2])
+                    COMMANDDB.merge(new_cc)
+                    commands_added += 1
+
+                COMMANDDB.commit()
+                await ctx.send(f'Added {commands_added} commands to database')
+
+        #except FileNotFoundError:
+        #    await ctx.send("Error, file not found");
+        except Exception as oof:
+            await ctx.send("Something went wrong with import, check log for details")
+            logging.info(oof)
             
 
 benchybot.add_cog(CommandDB(benchybot))
@@ -388,7 +422,7 @@ async def checkemails(ctx, last_uid):
         await ctx.send("No new emails")
 
 
-#@benchybot.event
+@benchybot.event
 async def on_command_error(ctx, error):
     """
     Parses command database since library sees them as an error
