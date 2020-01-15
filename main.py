@@ -211,7 +211,7 @@ class CommandDB(commands.Cog):
                     title=f'CC commands, pg {i}',
                     color=0xbf5700)
                 embed.add_field(
-                    name='All CC commands',
+                    name='All CC commands, times out after 2 minutes',
                     value = message,
                     inline=False)
                 i += 1
@@ -273,7 +273,7 @@ class CommandDB(commands.Cog):
                     title=f'Help commands, pg {i}',
                     color=0xbf5700)
                 embed.add_field(
-                    name='All help commands',
+                    name='All help commands, times out after 2 minutes',
                     value=message,
                     inline=False)
                 i += 1
