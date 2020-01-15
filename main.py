@@ -215,7 +215,7 @@ class CommandDB(commands.Cog):
                     value = message,
                     inline=False)
                 i += 1
-                await ctx.send(embed=embed)
+                await ctx.send(embed=embed, delete_after=120)
 
         #If one argument, delete that command
         if len(args) == 1:
@@ -277,7 +277,7 @@ class CommandDB(commands.Cog):
                     value=message,
                     inline=False)
                 i += 1
-                await ctx.send(embed=embed)
+                await ctx.send(embed=embed, delete_after=120)
             
             return
             #keeps it from continuing through to the next one in a lazy way
