@@ -55,9 +55,21 @@ benchybot = commands.Bot(command_prefix='!')
 
 async def is_admin(ctx):
     """
-    Checks if user is an admon
+    Checks if user is an admin
     """
-    return ctx.message.author.guild_permissions.administrator
+    admin_roles = {
+        'Admin': 167872106644635648,
+        'Moderator': 167872530860867586,
+        '3DPrinters Admin': 667109722930806835
+    }
+
+    for role_id in admin_roles:
+        test_role = discord.utils.get(ctx.guild.roles, id=admin_roles[role_id])
+        if test_role in ctx.author.roles:
+            return True
+
+    await ctx.send("You do not have permission to do that")
+    return False
 
 async def in_secret_channel(ctx):
     """Checks if a command was used in a secret channel"""
