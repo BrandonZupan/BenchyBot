@@ -51,7 +51,17 @@ benchybot = commands.Bot(command_prefix='!')
 ############
 ###Checks###
 ############
-    
+
+
+async def role_check(ctx, roles):
+    """Checks if user is in the list of roles"""
+    for role_id in roles:
+        test_role = discord.utils.get(ctx.guild.roles, id=roles[role_id])
+        if test_role in ctx.author.roles:
+            return True
+
+    await ctx.send("You do not have permission to do that")
+    return False
 
 async def is_admin(ctx):
     """
@@ -71,12 +81,22 @@ async def is_admin(ctx):
     await ctx.send("You do not have permission to do that")
     return False
 
+async def is_regular(ctx):
+    """Checks if user has regular role"""
+    regular_roles = {
+        'Regular Contributer': 260945795744792578,
+        '3DPrinters Admin': 667109722930806835
+    }
+    return await role_check(ctx, regular_roles)
+
 async def in_secret_channel(ctx):
     """Checks if a command was used in a secret channel"""
     secret_channels = {
         'command-sandbox': 339978089411117076,
         'srsbusiness': 525494034203017246,
-        'lets-kill-this-bot': 532781500471443477
+        'lets-kill-this-bot': 532781500471443477,
+        'regular-botcommands': 667463307963138058,
+        'benchybot': 602665906388074496
     }
     used_channel = ctx.channel.id
     for channel in secret_channels:
@@ -90,7 +110,9 @@ async def in_botspam(ctx):
     """Checks if a command was done in a botspam channel"""
     botspam = {
         'command-sandbox': 339978089411117076,
-        'voice-pastebin': 471446895089156108
+        'voice-pastebin': 471446895089156108,
+        'regular-botcommands': 667463307963138058,
+        'benchybot': 602665906388074496
     }
     used_channel = ctx.channel.id
     for channel in botspam:
@@ -242,7 +264,6 @@ class CommandDB(commands.Cog):
             logging.info("%s added %s with responce %s", ctx.author.name, new_cc.name, new_cc.responce)
 
     @commands.command(name='hc', hidden=True)
-    #@commands.check(is_admin)
     @commands.check(in_botspam)
     async def hc(self, ctx, *args):
         """
@@ -283,12 +304,12 @@ class CommandDB(commands.Cog):
             #keeps it from continuing through to the next one in a lazy way
 
         #If one argument, delete that command (admin only)
-        if await is_admin(ctx) == True:
+        if await is_regular(ctx) == True and await in_secret_channel(ctx) == True:
             if len(args) == 1:
                 victim = COMMANDDB.query(CCCommand).filter_by(name=args[0]).one()
-                COMMANDDB.delete(victom)
+                COMMANDDB.delete(victim)
                 COMMANDDB.commit()
-                await ctx.message.add_reaction('👌')
+                await ctx.send(f"Deleted the command for {victim.name}")
                 logging.info(ctx.author.name + " deleted " + victim.name + " from hc")
 
             if len(args) >= 2:
@@ -305,7 +326,7 @@ class CommandDB(commands.Cog):
                     new_hc.name,
                     new_hc.responce)
         else: 
-            await ctx.send("Only mods and admins can add commands, please let them know if there should be a new one.  ")
+            await ctx.send("Only mods and admins, and regulars can add commands, please let them know if there should be a new one.  ")
 
 
     @commands.command(name='cc-csv', hidden=True)
@@ -451,6 +472,7 @@ async def on_command_error(ctx, error):
         for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
             if instance.name == command[0][1:]:
                 await ctx.send(instance.responce)
+                print(instance.responce)
                 return
     else:
         print(error)
