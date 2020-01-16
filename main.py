@@ -104,6 +104,7 @@ async def in_secret_channel(ctx):
             return True
 
     #It dont exist
+    await ctx.send("sshhhhh this command is restricted to secret channels")
     return False
 
 async def in_botspam(ctx):
@@ -276,7 +277,6 @@ class CommandDB(commands.Cog):
             print(ctx.args)
 
     @commands.command(name='hc', hidden=True)
-    @commands.check(in_botspam)
     async def hc(self, ctx, command, *, _responce):
         """
         Lists all help commands
@@ -302,36 +302,41 @@ class CommandDB(commands.Cog):
                 ctx.author.name,
                 new_hc.name,
                 new_hc.responce)
-        else: 
-            await ctx.send("Only mods and admins, and regulars can add commands, please let them know if there should be a new one.  ")
 
 
     @hc.error
     async def hc_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'command':
-                #Output the command list
-                print("It be command")
-                output = [""]
-                i = 0
-                for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
-                    if instance.category == 'help':
-                        if (int(len(output[i])/900)) == 1:
-                            i = i + 1
-                            output.append("")
-                        output[i] += f"{instance.name} "
-                i = 1
-                for message in output:
-                    #print(f"Messages: {message}")
-                    embed = discord.Embed(
-                        title=f'Help commands, pg {i}',
-                        color=0xbf5700)
-                    embed.add_field(
-                        name='All help commands, times out after 2 minutes',
-                        value=message,
-                        inline=False)
-                    i += 1
-                    await ctx.send(embed=embed, delete_after=120)
+                #print(in_botspam(ctx))
+                if await in_botspam(ctx) == True:
+                    #Output the command list
+                    output = [""]
+                    i = 0
+                    for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
+                        if instance.category == 'help':
+                            if (int(len(output[i])/900)) == 1:
+                                i = i + 1
+                                output.append("")
+                            output[i] += f"{instance.name} "
+                    i = 1
+                    for message in output:
+                        #print(f"Messages: {message}")
+                        embed = discord.Embed(
+                            title=f'Help commands, pg {i}',
+                            color=0xbf5700)
+                        embed.add_field(
+                            name='All help commands, times out after 2 minutes',
+                            value=message,
+                            inline=False)
+                        i += 1
+                        await ctx.send(embed=embed, delete_after=120)
+
+                    return
+
+                else: 
+                    await ctx.send("This is restricted to #voice-pastebin to reduce clutter")
+                    return
 
             #Responce be missing so yeet it
             elif error.param.name == '_responce':
@@ -342,12 +347,10 @@ class CommandDB(commands.Cog):
                     COMMANDDB.commit()
                     await ctx.send(f"Deleted the command for {victim.name}")
                     logging.info(ctx.author.name + " deleted " + victim.name + " from hc")
-
-
-                else:
-                    await ctx.send("Only admins, moderators, and regulars can add commands")
+                    return
 
         else:
+            await ctx.send("There was an error, check log for details")
             print(f"Error be different:{error}")
             
 
