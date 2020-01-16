@@ -273,11 +273,11 @@ class CommandDB(commands.Cog):
     @parser.error
     async def parser_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            print("No args")
+            print(ctx.args)
 
     @commands.command(name='hc', hidden=True)
     @commands.check(in_botspam)
-    async def hc(self, ctx, *args):
+    async def hc(self, ctx, command, *, _responce):
         """
         Lists all help commands
         Usage: !hc
@@ -289,56 +289,67 @@ class CommandDB(commands.Cog):
         Bot will confirm with :ok_hand:
         
         """
-        #If zero args, list all commands
-        if not args:
-            output = [""]
-            i = 0
-            for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
-                if instance.category == 'help':
-                    if (int(len(output[i])/900)) == 1:
-                        i = i + 1
-                        output.append("")
-                    output[i] += f"{instance.name} "
-            i = 1
-            for message in output:
-                #print(f"Messages: {message}")
-                embed = discord.Embed(
-                    title=f'Help commands, pg {i}',
-                    color=0xbf5700)
-                embed.add_field(
-                    name='All help commands, times out after 2 minutes',
-                    value=message,
-                    inline=False)
-                i += 1
-                await ctx.send(embed=embed, delete_after=120)
-            
-            return
-            #keeps it from continuing through to the next one in a lazy way
-
-        #If one argument, delete that command (admin only)
         if await is_regular(ctx) == True and await in_secret_channel(ctx) == True:
-            if len(args) == 1:
-                victim = COMMANDDB.query(CCCommand).filter_by(name=args[0]).one()
-                COMMANDDB.delete(victim)
-                COMMANDDB.commit()
-                await ctx.send(f"Deleted the command for {victim.name}")
-                logging.info(ctx.author.name + " deleted " + victim.name + " from hc")
-
-            if len(args) >= 2:
-                new_hc = CCCommand(
-                    name=args[0].lower(),
-                    responce=' '.join(args[1:]),
-                    category='help')
-                COMMANDDB.merge(new_hc)
-                COMMANDDB.commit()
-                await ctx.message.add_reaction('👌')
-                logging.info(
-                    "%s added %s with responce %s to help",
-                    ctx.author.name,
-                    new_hc.name,
-                    new_hc.responce)
+            new_hc = CCCommand(
+                name=command.lower(),
+                responce=_responce,
+                category='help')
+            COMMANDDB.merge(new_hc)
+            COMMANDDB.commit()
+            await ctx.message.add_reaction('👌')
+            logging.info(
+                "%s added %s with responce %s to help",
+                ctx.author.name,
+                new_hc.name,
+                new_hc.responce)
         else: 
             await ctx.send("Only mods and admins, and regulars can add commands, please let them know if there should be a new one.  ")
+
+
+    @hc.error
+    async def hc_error(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            if error.param.name == 'command':
+                #Output the command list
+                print("It be command")
+                output = [""]
+                i = 0
+                for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
+                    if instance.category == 'help':
+                        if (int(len(output[i])/900)) == 1:
+                            i = i + 1
+                            output.append("")
+                        output[i] += f"{instance.name} "
+                i = 1
+                for message in output:
+                    #print(f"Messages: {message}")
+                    embed = discord.Embed(
+                        title=f'Help commands, pg {i}',
+                        color=0xbf5700)
+                    embed.add_field(
+                        name='All help commands, times out after 2 minutes',
+                        value=message,
+                        inline=False)
+                    i += 1
+                    await ctx.send(embed=embed, delete_after=120)
+
+            #Responce be missing so yeet it
+            elif error.param.name == '_responce':
+                #Make sure they be allowed
+                if await is_regular(ctx) == True and await in_secret_channel(ctx) == True:
+                    victim = COMMANDDB.query(CCCommand).filter_by(name=ctx.args[2]).one()
+                    COMMANDDB.delete(victim)
+                    COMMANDDB.commit()
+                    await ctx.send(f"Deleted the command for {victim.name}")
+                    logging.info(ctx.author.name + " deleted " + victim.name + " from hc")
+
+
+                else:
+                    await ctx.send("Only admins, moderators, and regulars can add commands")
+
+        else:
+            print(f"Error be different:{error}")
+            
 
 
     @commands.command(name='cc-csv', hidden=True)
@@ -351,7 +362,7 @@ class CommandDB(commands.Cog):
         with open('cc.csv', 'w', newline='') as csvfile:
             csv_writer = csv.writer(csvfile)
             for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
-                csv_writer.writerow([instance.name, instance.responce])
+                csv_writer.writerow([instance.category, instance.name, instance.responce])
 
         await ctx.send(file=discord.File('cc.csv'))
         os.remove('cc.csv')
