@@ -263,6 +263,18 @@ class CommandDB(commands.Cog):
             await ctx.message.add_reaction('👌')
             logging.info("%s added %s with responce %s", ctx.author.name, new_cc.name, new_cc.responce)
 
+
+    @commands.command(name='parser', hidden=True)
+    @commands.check(is_admin)
+    async def parser(self, ctx, command, *, responce):
+        """For testing how it be parsed"""
+        print(f"Command: {command}\nResponce: {responce}")
+
+    @parser.error
+    async def parser_error(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            print("No args")
+
     @commands.command(name='hc', hidden=True)
     @commands.check(in_botspam)
     async def hc(self, ctx, *args):
