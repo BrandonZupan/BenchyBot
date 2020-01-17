@@ -229,64 +229,6 @@ class CommandDB(commands.Cog):
     """
     Handles adding commands to a database
     """
-    @commands.command(name='cc', hidden=True)
-    @commands.check(is_admin)
-    @commands.check(in_secret_channel)
-    async def cc_command(self, ctx, *args):
-        """
-        Modifies the command database
-
-        List commands: !cc
-        Modify or create a command: !cc <command_name> <responce>
-        Delete a command: !cc <command_name>
-
-        Bot will confirm with :ok_hand:
-        """
-        #If zero arguments, list all commands
-        if not args:
-            output = [""]
-            i = 0
-            for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
-                if (int(len(output[i])/900)) == 1:
-                    i = i + 1
-                    output.append("")
-                output[i] += f"{instance.name} "
-
-            i = 1
-            for message in output:
-                embed = discord.Embed(
-                    title=f'CC commands, pg {i}',
-                    color=0xbf5700)
-                embed.add_field(
-                    name='All CC commands, times out after 2 minutes',
-                    value = message,
-                    inline=False)
-                i += 1
-                await ctx.send(embed=embed, delete_after=120)
-
-        #If one argument, delete that command
-        if len(args) == 1:
-            #print(args[0])
-            victim = COMMANDDB.query(CCCommand).filter_by(name=args[0]).one()
-            #print(victim.responce)
-            COMMANDDB.delete(victim)
-            COMMANDDB.commit()
-            await ctx.message.add_reaction('👌')
-            logging.info(ctx.author.name + " deleted " + victim.name)
-
-        #If 2 or more arguments, combine them and modify database
-        if len(args) >= 2:
-            #newCC = CCCommand(args[0], ' '.join(args[1:]))
-            #await ctx.send("Command " + newCC.name + " with link " + newCC.responce)
-            new_cc = CCCommand(
-                name=args[0].lower(),
-                responce=' '.join(args[1:]),
-                category='fun')
-            COMMANDDB.merge(new_cc)
-            COMMANDDB.commit()
-            #await ctx.send("Command " + newCC.name + " with link " + newCC.responce)
-            await ctx.message.add_reaction('👌')
-            logging.info("%s added %s with responce %s", ctx.author.name, new_cc.name, new_cc.responce)
 
     async def add_command(self, ctx, command, _responce, _category):
         """
@@ -322,6 +264,59 @@ class CommandDB(commands.Cog):
             victim.category
         )
         return
+
+    @commands.command(name='cc', hidden=True)
+    @commands.check(is_admin)
+    @commands.check(in_secret_channel)
+    async def cc_command(self, ctx, command, *, _responce):
+        """
+        Modifies the command database
+
+        List commands: !cc
+        Modify or create a command: !cc <command_name> <responce>
+        Delete a command: !cc <command_name>
+
+        Bot will confirm with :ok_hand:
+        """
+        #add a command
+        if ctx.message.mention_everyone == False:
+            CATEGORY = 'fun'
+            await self.add_command(ctx, command, _responce, CATEGORY)
+            return
+
+        else:
+            await ctx.send(f"Please do not use everyone or here, {ctx.author}")
+
+
+    @cc_command.error
+    async def cc_error(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            if error.param.name == 'command':
+                #Output command list
+                output = [""]
+                i = 0
+                for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
+                    if (int(len(output[i])/900)) == 1:
+                        i = i + 1
+                        output.append("")
+                    output[i] += f"{instance.name} "
+
+                i = 1
+                for message in output:
+                    embed = discord.Embed(
+                        title=f'CC commands, pg {i}',
+                        color=0xbf5700)
+                    embed.add_field(
+                        name='All CC commands, times out after 2 minutes',
+                        value = message,
+                        inline=False)
+                    i += 1
+                    await ctx.send(embed=embed, delete_after=120)
+
+            elif error.param.name == '_responce':
+                #delete a command
+                victim = COMMANDDB.query(CCCommand).filter_by(name=ctx.args[2]).one()
+                await self.delete_command(ctx, victim)
 
 
     @commands.command(name='hc')
