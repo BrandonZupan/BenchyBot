@@ -307,6 +307,22 @@ class CommandDB(commands.Cog):
             new_command.responce,
             new_command.category)
 
+    async def delete_command(self, ctx, victim):
+        """
+        Removed a command from the database
+        Assumes the user has permission to do it
+        """
+        COMMANDDB.delete(victim)
+        COMMANDDB.commit()
+        await ctx.send(f"Deleted the command for {victim.name}")
+        logging.info(
+            "%s deleted %s from %s",
+            ctx.author.name,
+            victim.name,
+            victim.category
+        )
+        return
+
 
     @commands.command(name='hc')
     async def hc(self, ctx, command, *, _responce):
@@ -362,7 +378,6 @@ class CommandDB(commands.Cog):
                     return
 
                 else: 
-                    await ctx.send("This is restricted to #voice-pastebin to reduce clutter")
                     return
 
             #Responce be missing so yeet it
@@ -370,14 +385,13 @@ class CommandDB(commands.Cog):
                 #Make sure they be allowed
                 if await is_regular(ctx) == True and await in_secret_channel(ctx) == True:
                     victim = COMMANDDB.query(CCCommand).filter_by(name=ctx.args[2]).one()
-                    COMMANDDB.delete(victim)
-                    COMMANDDB.commit()
-                    await ctx.send(f"Deleted the command for {victim.name}")
-                    logging.info(ctx.author.name + " deleted " + victim.name + " from hc")
-                    return
+                    if victim.category == 'help':
+                        await self.delete_command(ctx, victim)
+                    else:
+                        await ctx.send("hc can only delete help commands")
 
         else:
-            await ctx.send("There was an error, check log for details")
+            await ctx.send("There was an error, details in log (in function hc_error)")
             print(f"Error be different:{error}")
             
 
