@@ -17,12 +17,33 @@ import graphing
 from email_checker import get_recent_emails
 import csv
 import os
+import json
 
 #Start logging
 logging.basicConfig(level=logging.INFO)
 
+#Setup JSON config file
+CONFIG_FILE = 'config.json'
+CONFIG = {}
+if os.path.exists(CONFIG_FILE):
+    #load it
+    with open(CONFIG_FILE, "r") as config_file:
+        CONFIG = json.load(config_file)
+else:
+    #create file
+    config_template = {
+        "key": "put private key here",
+        "prefix": "!",
+        "database": "sqlite:///:memory:"
+    }
+    with open(CONFIG_FILE, "w") as config_file:
+        json.dump(config_template, config_file)
+    print(f"Please fill out {CONFIG_FILE}")
+    exit()
+
+
 #SQL Database
-ENGINE = create_engine('sqlite:///responces-2019-1-12.db', echo=False)
+ENGINE = create_engine(CONFIG['database'], echo=False)
 BASE = declarative_base()
 
 class CCCommand(BASE):
@@ -45,7 +66,7 @@ SESSION = sessionmaker(bind=ENGINE)
 COMMANDDB = SESSION()
 
 #Discord client
-benchybot = commands.Bot(command_prefix='!')
+benchybot = commands.Bot(command_prefix=CONFIG['prefix'])
 
 
 ############
@@ -508,6 +529,6 @@ async def on_command_error(ctx, error):
         print(error)
 
 
-with open('key.txt', 'r') as keyFile:
-    KEY = keyFile.read()
-benchybot.run(KEY.strip())
+# with open('key.txt', 'r') as keyFile:
+#     KEY = keyFile.read()
+benchybot.run(CONFIG['key'].strip())
