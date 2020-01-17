@@ -290,18 +290,23 @@ class CommandDB(commands.Cog):
         
         """
         if await is_regular(ctx) == True and await in_secret_channel(ctx) == True:
-            new_hc = CCCommand(
-                name=command.lower(),
-                responce=_responce,
-                category='help')
-            COMMANDDB.merge(new_hc)
-            COMMANDDB.commit()
-            await ctx.message.add_reaction('👌')
-            logging.info(
-                "%s added %s with responce %s to help",
-                ctx.author.name,
-                new_hc.name,
-                new_hc.responce)
+            if ctx.message.mention_everyone == False:
+                new_hc = CCCommand(
+                    name=command.lower(),
+                    responce=_responce,
+                    category='help')
+                COMMANDDB.merge(new_hc)
+                COMMANDDB.commit()
+                await ctx.message.add_reaction('👌')
+                logging.info(
+                    "%s added %s with responce %s to help",
+                    ctx.author.name,
+                    new_hc.name,
+                    new_hc.responce)
+                return
+
+            else:
+                await ctx.send("Please do not use everyone or here, {ctx.author}")
 
 
     @hc.error
