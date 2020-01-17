@@ -34,7 +34,9 @@ else:
     config_template = {
         "key": "put private key here",
         "prefix": "!",
-        "database": "sqlite:///:memory:"
+        "database": "sqlite:///:memory:",
+        "name": "Bot",
+        "show_status": False
     }
     with open(CONFIG_FILE, "w") as config_file:
         json.dump(config_template, config_file)
@@ -453,6 +455,9 @@ async def on_ready():
     Runs when bot connects
     """
     print('We have logged in as {0.user}'.format(benchybot))
+    #Set activity
+    if CONFIG['show_status'] == True:
+        await benchybot.change_presence(activity=discord.Game(CONFIG['name']))
 
 
 ##############
