@@ -306,7 +306,7 @@ class CommandDB(commands.Cog):
                 return
 
             else:
-                await ctx.send("Please do not use everyone or here, {ctx.author}")
+                await ctx.send(f"Please do not use everyone or here, {ctx.author}")
 
 
     @hc.error
@@ -510,4 +510,4 @@ async def on_command_error(ctx, error):
 
 with open('key.txt', 'r') as keyFile:
     KEY = keyFile.read()
-benchybot.run(KEY)
+benchybot.run(KEY.strip())
