@@ -498,7 +498,6 @@ async def on_command_error(ctx, error):
         for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
             if instance.name == command[0][1:]:
                 await ctx.send(instance.responce)
-                print(instance.responce)
                 return
     else:
         print(error)
