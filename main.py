@@ -286,17 +286,6 @@ class CommandDB(commands.Cog):
             logging.info("%s added %s with responce %s", ctx.author.name, new_cc.name, new_cc.responce)
 
 
-    @commands.command(name='parser', hidden=True)
-    @commands.check(is_admin)
-    async def parser(self, ctx, command, *, responce):
-        """For testing how it be parsed"""
-        print(f"Command: {command}\nResponce: {responce}")
-
-    @parser.error
-    async def parser_error(self, ctx, error):
-        if isinstance(error, commands.MissingRequiredArgument):
-            print(ctx.args)
-
     @commands.command(name='hc')
     async def hc(self, ctx, command, *, _responce):
         """
