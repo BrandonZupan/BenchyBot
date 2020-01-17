@@ -276,13 +276,13 @@ class CommandDB(commands.Cog):
         if isinstance(error, commands.MissingRequiredArgument):
             print(ctx.args)
 
-    @commands.command(name='hc', hidden=True)
+    @commands.command(name='hc')
     async def hc(self, ctx, command, *, _responce):
         """
-        Lists all help commands
+        Shows troubleshooting command list
         Usage: !hc
 
-        Admins can add to the database
+        Admins and Regulars can add to the database
         Modify or create a command: !hc <command_name> <responce>
         Delete a command: !hc <command_name>
 
