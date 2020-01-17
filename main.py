@@ -141,7 +141,7 @@ async def in_botspam(ctx):
         if botspam[channel] == used_channel:
             return True
 
-    await ctx.send("Error: View the command list in #voice-pastebin")
+    await ctx.send("Error: View the command list in a bot command channel like #voice-pastebin")
     return False
 
 
@@ -226,6 +226,9 @@ class MyCog(commands.Cog):
 #benchybot.add_cog(EmailChecker(benchybot))
 
 class CommandDB(commands.Cog):
+    """
+    Handles adding commands to a database
+    """
     @commands.command(name='cc', hidden=True)
     @commands.check(is_admin)
     @commands.check(in_secret_channel)
@@ -285,6 +288,25 @@ class CommandDB(commands.Cog):
             await ctx.message.add_reaction('👌')
             logging.info("%s added %s with responce %s", ctx.author.name, new_cc.name, new_cc.responce)
 
+    async def add_command(self, ctx, command, _responce, _category):
+        """
+        Adds a command to the database
+        Assumes user has permission to do it
+        """
+        new_command = CCCommand(
+            name=command.lower(),
+            responce=_responce,
+            category=_category)
+        COMMANDDB.merge(new_command)
+        COMMANDDB.commit()
+        await ctx.message.add_reaction('👌')
+        logging.info(
+            "%s added %s with responce %s to %s",
+            ctx.author.name,
+            new_command.name,
+            new_command.responce,
+            new_command.category)
+
 
     @commands.command(name='hc')
     async def hc(self, ctx, command, *, _responce):
@@ -301,18 +323,8 @@ class CommandDB(commands.Cog):
         """
         if await is_regular(ctx) == True and await in_secret_channel(ctx) == True:
             if ctx.message.mention_everyone == False:
-                new_hc = CCCommand(
-                    name=command.lower(),
-                    responce=_responce,
-                    category='help')
-                COMMANDDB.merge(new_hc)
-                COMMANDDB.commit()
-                await ctx.message.add_reaction('👌')
-                logging.info(
-                    "%s added %s with responce %s to help",
-                    ctx.author.name,
-                    new_hc.name,
-                    new_hc.responce)
+                CATEGORY = 'help'
+                await self.add_command(ctx, command, _responce, CATEGORY)
                 return
 
             else:
