@@ -15,8 +15,12 @@ specialCommands.txt
 *.jpg
 *.csv
 
+#python
 __pycache__
 *.pyc
+*.cfg
+bin/
+lib64
 
 .pylintrc
 
