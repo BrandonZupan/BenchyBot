@@ -10,7 +10,7 @@ import asyncio
 from functools import partial
 import discord
 from discord.ext import tasks, commands
-from sqlalchemy import create_engine, Column, String
+from sqlalchemy import create_engine, Column, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import graphing
@@ -111,6 +111,16 @@ async def is_regular(ctx):
         '3DPrinters Admin': 667109722930806835
     }
     return await role_check(ctx, regular_roles)
+
+async def is_staff(ctx):
+    """Checks if the user is staff"""
+    staff_roles = {
+        '3D Printers Admin (Test Server)': 667109722930806835,
+        'Temporary Staff': 690993018357940244,
+        'Moderator': 167872530860867586,
+        'Admin': 167872106644635648
+    }
+    return await role_check(ctx, staff_roles)
 
 async def in_secret_channel(ctx):
     """Checks if a command was used in a secret channel"""
@@ -448,6 +458,65 @@ class CommandDB(commands.Cog):
 
 benchybot.add_cog(CommandDB(benchybot))
 
+class CoronaChannel(commands.Cog):
+    """
+    Handles the Covid-19 Channel role
+    """
+    # - Use that function to remove the Covid19 role from someone with the !removeCovid19 <user> command and puts an entry to the database
+    # - Also just !removeCovid19 to remove it from themselves without adding to database
+    # - Add an admin command that removes that entry from that database if needed
+
+    def __init__(self, bot):
+        self.covidRoleID = 691050284771835924
+        self.bot = bot
+    
+    # database class
+    class CoronaDB(BASE):
+        __tablename__ = "CoronaDB"
+        userID = Column(Integer, primary_key=True)
+
+    @commands.command()
+    async def addCovid19(self, ctx):
+        user = ctx.author
+        if self.can_add_role(user):
+            await user.add_roles(ctx.guild.get_role(self.covidRoleID))
+            await ctx.message.add_reaction('👌')
+        else:
+            await ctx.send("You do not have permission to add that role")
+
+    @commands.command()
+    @commands.check(is_staff)
+    async def removeCovid19(self, ctx, *, user_mentions):
+        for member in ctx.message.mentions:
+            # make sure they aren't staff
+            # add the member to the database
+            # remove the role
+
+            # TODO: Test this
+            if is_staff(member):
+                await ctx.send("Error: Cannot remove role from staff members")
+        
+
+    @removeCovid19.error
+    async def removeCovid19_error(self, ctx, error):
+        # No argument, so remove it from the user
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.author.remove_roles(ctx.guild.get_role(self.covidRoleID))
+            await ctx.message.add_reaction('👌')
+
+
+
+    def can_add_role(self, user):
+        """
+        Checks if the user can add the corona role to themselves
+        """
+        for instance in COMMANDDB.query(CoronaDB).order_by(CoronaDB.name):
+            if instance.userID == user.id:
+                return False
+        return True
+
+
+benchybot.add_cog(CoronaChannel(benchybot))
 
 @benchybot.event
 async def on_ready():
@@ -525,7 +594,7 @@ async def checkemails(ctx, last_uid):
         await ctx.send("No new emails")
 
 
-@benchybot.event
+# @benchybot.event
 async def on_command_error(ctx, error):
     """
     Parses command database since library sees them as an error
