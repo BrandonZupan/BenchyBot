@@ -475,7 +475,7 @@ class CoronaChannel(commands.Cog):
     # - Add an admin command that removes that entry from that database if needed
 
     def __init__(self, bot):
-        self.covidRoleID = 691050284771835924
+        self.covidRoleID = 691322628354343002
         self.bot = bot
         self.CoronaDB.metadata.create_all(ENGINE)
     
@@ -486,6 +486,11 @@ class CoronaChannel(commands.Cog):
 
     @commands.command()
     async def addCovid19(self, ctx):
+        """
+        Adds the Covid-19 Role to themselves
+        Usage: `!addCovid19`
+        Bot will confirm with :ok_hand:
+        """
         user = ctx.author
         if self.can_add_role(user):
             await user.add_roles(ctx.guild.get_role(self.covidRoleID))
@@ -496,6 +501,11 @@ class CoronaChannel(commands.Cog):
     @commands.command()
     @commands.check(is_staff)
     async def removeCovid19(self, ctx, *, user_mentions):
+        """
+        Removes the Covid-19 Role
+        Usage: `!removeCovid19` to remove it from yourself, confirms with :ok_hand:
+               `!removeCovid19 @user` to remove it from a specific user, confirms with message
+        """
         for member in ctx.message.mentions:
             # make sure they aren't staff
             # add the member to the database
