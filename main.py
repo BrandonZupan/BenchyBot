@@ -82,7 +82,7 @@ async def role_check(ctx, roles):
         test_role = discord.utils.get(ctx.guild.roles, id=roles[role_id])
         if test_role in ctx.author.roles:
             return True
-
+    
     await ctx.send("You do not have permission to do that")
     return False
 
@@ -492,9 +492,11 @@ class CoronaChannel(commands.Cog):
             # add the member to the database
             # remove the role
 
-            # TODO: Test this
-            if is_staff(member):
-                await ctx.send("Error: Cannot remove role from staff members")
+            is_staff_member = await is_staff(member)
+            if is_staff_member:
+                await ctx.send(f"Error: Cannot remove role from staff member, {member}")
+            
+            await self.add_to_banned(ctx, member)
         
 
     @removeCovid19.error
@@ -504,8 +506,6 @@ class CoronaChannel(commands.Cog):
             await ctx.author.remove_roles(ctx.guild.get_role(self.covidRoleID))
             await ctx.message.add_reaction('👌')
 
-
-
     def can_add_role(self, user):
         """
         Checks if the user can add the corona role to themselves
@@ -514,6 +514,17 @@ class CoronaChannel(commands.Cog):
             if instance.userID == user.id:
                 return False
         return True
+
+    async def add_to_banned(self, ctx, member):
+        new_member = CoronaDB(userID = member.id)
+        COMMANDDB.merge(new_member)
+        COMMANDDB.commit()
+        await ctx.message.add_reaction('👌')
+        logging.info(
+            "%s removed %s from corona channels",
+            ctx.author.name,
+            member.name
+        )
 
 
 benchybot.add_cog(CoronaChannel(benchybot))
@@ -595,22 +606,22 @@ async def checkemails(ctx, last_uid):
 
 
 # @benchybot.event
-async def on_command_error(ctx, error):
-    """
-    Parses command database since library sees them as an error
-    """
-    if isinstance(error, commands.errors.CommandNotFound):
-        #await ctx.send(ctx.message.content)
-        command = ctx.message.content.lower()
-        command = command.split(" ", 1)
+# async def on_command_error(ctx, error):
+#     """
+#     Parses command database since library sees them as an error
+#     """
+#     if isinstance(error, commands.errors.CommandNotFound):
+#         #await ctx.send(ctx.message.content)
+#         command = ctx.message.content.lower()
+#         command = command.split(" ", 1)
 
-        #Look if its in the database
-        for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
-            if instance.name == command[0][1:]:
-                await ctx.send(instance.responce)
-                return
-    else:
-        print(error)
+#         #Look if its in the database
+#         for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
+#             if instance.name == command[0][1:]:
+#                 await ctx.send(instance.responce)
+#                 return
+#     else:
+#         print(error)
 
 
 # with open('key.txt', 'r') as keyFile:
