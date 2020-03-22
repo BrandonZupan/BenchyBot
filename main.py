@@ -76,15 +76,6 @@ benchybot = commands.Bot(command_prefix=CONFIG['prefix'])
 ############
 
 
-# async def role_check(ctx: commands.Context, roles):
-#     """Checks if user is in the list of roles"""
-#     for role_id in roles:
-#         test_role = discord.utils.get(ctx.guild.roles, id=roles[role_id])
-#         if test_role in ctx.author.roles:
-#             return True
-    
-#     await ctx.send("You do not have permission to do that")
-#     return False
 
 async def role_check(member: discord.Member, ctx, roles):
     """Checks if user is in the list of roles"""
