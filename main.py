@@ -475,8 +475,8 @@ class CoronaChannel(commands.Cog):
     # - Add an admin command that removes that entry from that database if needed
 
     def __init__(self, bot):
-        #self.covidRoleID = 691322628354343002   #3D printing Server
-        self.covidRoleID = 691050284771835924   #Test server
+        self.covidRoleID = 691322628354343002   #3D printing Server
+        #self.covidRoleID = 691050284771835924   #Test server
         self.bot = bot
         self.CoronaDB.metadata.create_all(ENGINE)
     
