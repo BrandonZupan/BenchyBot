@@ -510,22 +510,20 @@ class CoronaChannel(commands.Cog):
             # add the member to the database
             # remove the role
 
-            # print(type(ctx))
-
-            is_staff_member = await is_staff(member)
-            if is_staff_member:
+            if is_staff(member):
                 await ctx.send(f"Error: Cannot remove role from staff member, {member}")
             
-            await self.add_to_banned(ctx, member)
+            else:
+                await self.add_to_banned(ctx, member)
 
-            await member.remove_roles(ctx.guild.get_role(self.covidRoleID))
+                await member.remove_roles(ctx.guild.get_role(self.covidRoleID))
 
-            await ctx.message.add_reaction('👌')
-            logging.info(
-                "%s removed %s from corona channels",
-                ctx.author.name,
-                member.name
-            )
+                await ctx.message.add_reaction('👌')
+                logging.info(
+                    "%s removed %s from corona channels",
+                    ctx.author.name,
+                    member.name
+                )
         
 
     @removeCovid19.error
