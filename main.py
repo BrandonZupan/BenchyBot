@@ -480,7 +480,6 @@ class CoronaChannel(commands.Cog):
     """
     Handles the Covid-19 Channel role
     """
-    # - Use that function to remove the Covid19 role from someone with the !removeCovid19 <user> command and puts an entry to the database
     # - Also just !removeCovid19 to remove it from themselves without adding to database
     # - Add an admin command that removes that entry from that database if needed
 
@@ -540,7 +539,7 @@ class CoronaChannel(commands.Cog):
         """
         Checks if the user can add the corona role to themselves
         """
-        for instance in COMMANDDB.query(CoronaDB).order_by(CoronaDB.name):
+        for instance in COMMANDDB.query(self.CoronaDB).order_by(self.CoronaDB.userID):
             if instance.userID == user.id:
                 return False
         return True
