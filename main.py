@@ -512,8 +512,8 @@ class CoronaChannel(commands.Cog):
             # add the member to the database
             # remove the role
 
-            #if await is_staff(member):
-            if False:
+            if await is_staff(member):
+            #if False:
                 await ctx.send(f"Error: Cannot remove role from staff member, {member}")
             
             else:
