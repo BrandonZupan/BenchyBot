@@ -475,7 +475,8 @@ class CoronaChannel(commands.Cog):
     # - Add an admin command that removes that entry from that database if needed
 
     def __init__(self, bot):
-        self.covidRoleID = 691322628354343002
+        #self.covidRoleID = 691322628354343002   #3D printing Server
+        self.covidRoleID = 691050284771835924   #Test server
         self.bot = bot
         self.CoronaDB.metadata.create_all(ENGINE)
     
@@ -511,7 +512,8 @@ class CoronaChannel(commands.Cog):
             # add the member to the database
             # remove the role
 
-            if await is_staff(member):
+            #if await is_staff(member):
+            if False:
                 await ctx.send(f"Error: Cannot remove role from staff member, {member}")
             
             else:
@@ -526,13 +528,31 @@ class CoronaChannel(commands.Cog):
                     member.name
                 )
         
-
     @removeCovid19.error
     async def removeCovid19_error(self, ctx, error):
         # No argument, so remove it from the user
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.author.remove_roles(ctx.guild.get_role(self.covidRoleID))
             await ctx.message.add_reaction('👌')
+
+    @commands.command()
+    @commands.check(is_staff)
+    async def unbanCovid19(self, ctx, *, user_mentions):
+        """
+        Removes a name from the database of banned people
+        Usage: `!unbanCovid19 @user`
+        Bot confirms with a message
+        """
+        for member in ctx.message.mentions:
+            victim = COMMANDDB.query(self.CoronaDB).filter_by(userID=member.id).one()
+            COMMANDDB.delete(victim)
+            COMMANDDB.commit()
+            await ctx.send(f"{member} can now add the Corona Role again")
+            logging.info(
+                "%s removed %s from Corona Banned database",
+                ctx.author.name,
+                member
+            )
 
     def can_add_role(self, user):
         """
