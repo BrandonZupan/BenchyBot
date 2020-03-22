@@ -518,6 +518,15 @@ class CoronaChannel(commands.Cog):
                 await ctx.send(f"Error: Cannot remove role from staff member, {member}")
             
             await self.add_to_banned(ctx, member)
+
+            await member.remove_roles(ctx.guild.get_role(self.covidRoleID))
+
+            await ctx.message.add_reaction('👌')
+            logging.info(
+                "%s removed %s from corona channels",
+                ctx.author.name,
+                member.name
+            )
         
 
     @removeCovid19.error
@@ -540,12 +549,7 @@ class CoronaChannel(commands.Cog):
         new_member = self.CoronaDB(userID = member.id)
         COMMANDDB.merge(new_member)
         COMMANDDB.commit()
-        await ctx.message.add_reaction('👌')
-        logging.info(
-            "%s removed %s from corona channels",
-            ctx.author.name,
-            member.name
-        )
+
 
 
 benchybot.add_cog(CoronaChannel(benchybot))
