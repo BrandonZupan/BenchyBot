@@ -76,24 +76,24 @@ benchybot = commands.Bot(command_prefix=CONFIG['prefix'])
 ############
 
 
-async def role_check(ctx: commands.Context, roles):
-    """Checks if user is in the list of roles"""
-    for role_id in roles:
-        test_role = discord.utils.get(ctx.guild.roles, id=roles[role_id])
-        if test_role in ctx.author.roles:
-            return True
+# async def role_check(ctx: commands.Context, roles):
+#     """Checks if user is in the list of roles"""
+#     for role_id in roles:
+#         test_role = discord.utils.get(ctx.guild.roles, id=roles[role_id])
+#         if test_role in ctx.author.roles:
+#             return True
     
-    await ctx.send("You do not have permission to do that")
-    return False
+#     await ctx.send("You do not have permission to do that")
+#     return False
 
-async def role_check(member: discord.Member, roles):
+async def role_check(member: discord.Member, ctx, roles):
     """Checks if user is in the list of roles"""
     for role_id in roles:
         test_role = discord.utils.get(ctx.guild.roles, id=roles[role_id])
         if test_role in member.roles:
             return True
     
-    await ctx.send("You do not have permission to do that")
+    # await ctx.send("You do not have permission to do that")
     return False
 
 async def is_admin(ctx):
@@ -120,20 +120,25 @@ async def is_regular(ctx):
         'Regular Contributer': 260945795744792578,
         '3DPrinters Admin': 667109722930806835
     }
-    return await role_check(ctx, regular_roles)
+    return await role_check(ctx.author, ctx, regular_roles)
 
-async def is_staff(member: discord.Member):
+async def is_staff(ctx):
     """Checks if the user is staff"""
+    member = discord.Member
+    if type(ctx) == commands.Context:
+        member = ctx.author
+    elif type(ctx) == discord.Member:
+        member = ctx
     staff_roles = {
         '3D Printers Admin (Test Server)': 667109722930806835,
         'Temporary Staff': 690993018357940244,
         'Moderator': 167872530860867586,
         'Admin': 167872106644635648
     }
-    return await role_check(member, staff_roles)
+    return await role_check(member, ctx, staff_roles)
 
-async def is_staff(ctx: commands.Context):
-    await is_staff(ctx.author)
+# async def is_staff(ctx: commands.Context):
+#     await is_staff(ctx.author)
 
 async def in_secret_channel(ctx):
     """Checks if a command was used in a secret channel"""
@@ -482,6 +487,7 @@ class CoronaChannel(commands.Cog):
     def __init__(self, bot):
         self.covidRoleID = 691050284771835924
         self.bot = bot
+        self.CoronaDB.metadata.create_all(ENGINE)
     
     # database class
     class CoronaDB(BASE):
@@ -531,7 +537,7 @@ class CoronaChannel(commands.Cog):
         return True
 
     async def add_to_banned(self, ctx, member):
-        new_member = CoronaDB(userID = member.id)
+        new_member = self.CoronaDB(userID = member.id)
         COMMANDDB.merge(new_member)
         COMMANDDB.commit()
         await ctx.message.add_reaction('👌')
