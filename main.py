@@ -76,11 +76,21 @@ benchybot = commands.Bot(command_prefix=CONFIG['prefix'])
 ############
 
 
-async def role_check(ctx, roles):
+async def role_check(ctx: commands.Context, roles):
     """Checks if user is in the list of roles"""
     for role_id in roles:
         test_role = discord.utils.get(ctx.guild.roles, id=roles[role_id])
         if test_role in ctx.author.roles:
+            return True
+    
+    await ctx.send("You do not have permission to do that")
+    return False
+
+async def role_check(member: discord.Member, roles):
+    """Checks if user is in the list of roles"""
+    for role_id in roles:
+        test_role = discord.utils.get(ctx.guild.roles, id=roles[role_id])
+        if test_role in member.roles:
             return True
     
     await ctx.send("You do not have permission to do that")
@@ -112,7 +122,7 @@ async def is_regular(ctx):
     }
     return await role_check(ctx, regular_roles)
 
-async def is_staff(ctx):
+async def is_staff(member: discord.Member):
     """Checks if the user is staff"""
     staff_roles = {
         '3D Printers Admin (Test Server)': 667109722930806835,
@@ -120,7 +130,10 @@ async def is_staff(ctx):
         'Moderator': 167872530860867586,
         'Admin': 167872106644635648
     }
-    return await role_check(ctx, staff_roles)
+    return await role_check(member, staff_roles)
+
+async def is_staff(ctx: commands.Context):
+    await is_staff(ctx.author)
 
 async def in_secret_channel(ctx):
     """Checks if a command was used in a secret channel"""
@@ -492,6 +505,8 @@ class CoronaChannel(commands.Cog):
             # add the member to the database
             # remove the role
 
+            # print(type(ctx))
+
             is_staff_member = await is_staff(member)
             if is_staff_member:
                 await ctx.send(f"Error: Cannot remove role from staff member, {member}")
@@ -605,23 +620,23 @@ async def checkemails(ctx, last_uid):
         await ctx.send("No new emails")
 
 
-# @benchybot.event
-# async def on_command_error(ctx, error):
-#     """
-#     Parses command database since library sees them as an error
-#     """
-#     if isinstance(error, commands.errors.CommandNotFound):
-#         #await ctx.send(ctx.message.content)
-#         command = ctx.message.content.lower()
-#         command = command.split(" ", 1)
+@benchybot.event
+async def on_command_error(ctx, error):
+    """
+    Parses command database since library sees them as an error
+    """
+    if isinstance(error, commands.errors.CommandNotFound):
+        #await ctx.send(ctx.message.content)
+        command = ctx.message.content.lower()
+        command = command.split(" ", 1)
 
-#         #Look if its in the database
-#         for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
-#             if instance.name == command[0][1:]:
-#                 await ctx.send(instance.responce)
-#                 return
-#     else:
-#         print(error)
+        #Look if its in the database
+        for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
+            if instance.name == command[0][1:]:
+                await ctx.send(instance.responce)
+                return
+    else:
+        print(error)
 
 
 # with open('key.txt', 'r') as keyFile:
