@@ -600,7 +600,7 @@ async def on_ready():
         await benchybot.change_presence(activity=discord.Game(CONFIG['name']))
 
 # on_message event - Called whenever a message is sent on the server - this overwrites default behaviour.
-@bot.event
+@benchybot.event
 async def on_message(message):
     # Un-comment to enable full output:
     #print(f"{message.channel}: {message.author}: {message.content}")
@@ -611,7 +611,7 @@ async def on_message(message):
         await message.author.send(banned_message_string)
 
     # Process commands
-    await bot.process_commands(message)
+    await benchybot.process_commands(message)
 
 ##############
 ###Commands###
@@ -677,8 +677,8 @@ async def checkemails(ctx, last_uid):
     else:
         await ctx.send("No new emails")
 
-@bot.command()
-@commands.has_any_role(690993018357940244, 167872530860867586, 167872106644635648)
+@benchybot.command()
+@commands.check(is_staff)
 async def reload_banned_sites(ctx):
     try:
         banned_sites = open("banned_sites.txt", "r").readlines()
@@ -689,8 +689,8 @@ async def reload_banned_sites(ctx):
         print("[✘] Banned sites list could not be updated.")
         await ctx.send("Oops! Somethign went wrong!")
 
-@bot.command()
-@commands.has_any_role(690993018357940244, 167872530860867586, 167872106644635648)
+@benchybot.command()
+@commands.check(is_staff)
 async def add_banned_site(ctx, arg):
     try:
         print("appending")
@@ -702,7 +702,7 @@ async def add_banned_site(ctx, arg):
         print("[✘] Could not add banned site")
         await ctx.send("Oops! Somethign went wrong!")
 
-@benchybt.event
+@benchybot.event
 async def on_command_error(ctx, error):
     """
     Parses command database since library sees them as an error
