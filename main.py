@@ -678,10 +678,6 @@ async def checkemails(ctx, last_uid):
         await ctx.send("No new emails")
 
 @bot.command()
-async def ping(ctx):
-    await ctx.send("Pong!")
-
-@bot.command()
 @commands.has_any_role(690993018357940244, 167872530860867586, 167872106644635648)
 async def reload_banned_sites(ctx):
     try:
