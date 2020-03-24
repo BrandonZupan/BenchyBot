@@ -615,7 +615,7 @@ class ChatFilter(commands.Cog):
         COMMANDDB.commit()
 
         self.load_from_database()
-        await ctx.add_reaction("👌")
+        await ctx.message.add_reaction("👌")
 
     @commands.command()
     @commands.check(is_admin)
@@ -627,11 +627,11 @@ class ChatFilter(commands.Cog):
         """
         output = [""]
         i = 0
-        for instance in COMMANDDB.query(BannedPhrases).order_by(BannedPhrases.id):
+        for instance in COMMANDDB.query(self.BannedPhrases).order_by(self.BannedPhrases.id):
             if (int(len(output[i])/900)) == 1:
                 i = i + 1
                 output.append("")
-            output[i] += f"{instance.id}: {instance.phrase}\n"
+            output[i] += f"{instance.id}: `{instance.phrase}`\n"
 
         i = 1
         for message in output:
@@ -662,8 +662,8 @@ class ChatFilter(commands.Cog):
 
     async def check_message(self, ctx):
         if (any(s in message.content.lower() for s in banned_sites)):
-        await message.delete()
-        await message.author.send(banned_message_string)
+            await message.delete()
+            await message.author.send(banned_message_string)
 
 chat_filter = ChatFilter(benchybot)
 benchybot.add_cog(chat_filter)
