@@ -68,6 +68,7 @@ SESSION = sessionmaker(bind=ENGINE)
 COMMANDDB = SESSION()
 
 # Load banned sites
+global banned_sites
 try:
     banned_sites = open("banned_sites.txt", "r").readlines()
     banned_sites = [line.rstrip("\n") for line in banned_sites]
@@ -680,14 +681,16 @@ async def checkemails(ctx, last_uid):
 @benchybot.command()
 @commands.check(is_staff)
 async def reload_banned_sites(ctx):
-    try:
-        banned_sites = open("banned_sites.txt", "r").readlines()
-        banned_sites = [line.rstrip("\n") for line in banned_sites]
-        await ctx.send(f"Done!")
-        print(f"[✓] Banned sites updated: {len(banned_sites)}")
-    except:
-        print("[✘] Banned sites list could not be updated.")
-        await ctx.send("Oops! Somethign went wrong!")
+    #try:
+    global banned_sites
+    all_banned_sites = open("banned_sites.txt", "r").readlines()
+    banned_sites = [line.rstrip("\n") for line in banned_sites]
+    await ctx.send(f"Done!")
+    print(f"[✓] Banned sites updated: {len(banned_sites)}")
+    print(banned_sites)
+    # except:
+    #     print("[✘] Banned sites list could not be updated.")
+    #     await ctx.send("Oops! Somethign went wrong!")
 
 @benchybot.command()
 @commands.check(is_staff)
@@ -701,6 +704,11 @@ async def add_banned_site(ctx, arg):
     except:
         print("[✘] Could not add banned site")
         await ctx.send("Oops! Somethign went wrong!")
+
+@benchybot.command(hidden=True)
+@commands.check(is_staff)
+async def list_banned_sites(ctx):
+    print(banned_sites)
 
 @benchybot.event
 async def on_command_error(ctx, error):
