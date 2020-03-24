@@ -616,7 +616,8 @@ class ChatFilter(commands.Cog):
         """
         Reloads the banned phrases from the database
         """
-        
+        self.load_from_database()
+        await ctx.add_reaction("👌")
 
     @commands.command()
     @commands.check(is_staff)
