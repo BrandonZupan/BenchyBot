@@ -586,9 +586,47 @@ class CoronaChannel(commands.Cog):
         COMMANDDB.merge(new_member)
         COMMANDDB.commit()
 
-
-
 benchybot.add_cog(CoronaChannel(benchybot))
+
+
+class ChatFilter(commands.Cog):
+    """
+    Detects and deletes specific words and phrases
+    Adapted from code provided by @Ed#9952 from the Discord
+    https://github.com/EdwardChamberlain/Discord-Censor-Bot
+    """
+    @commands.command()
+    @commands.check(is_staff)
+    async def reload_banned_sites(ctx):
+        #try:
+        global banned_sites
+        all_banned_sites = open("banned_sites.txt", "r").readlines()
+        banned_sites = [line.rstrip("\n") for line in banned_sites]
+        await ctx.send(f"Done!")
+        print(f"[✓] Banned sites updated: {len(banned_sites)}")
+        print(banned_sites)
+        # except:
+        #     print("[✘] Banned sites list could not be updated.")
+        #     await ctx.send("Oops! Somethign went wrong!")
+
+    @commands.command()
+    @commands.check(is_staff)
+    async def add_banned_site(ctx, arg):
+        try:
+            print("appending")
+            with open("banned_sites.txt", "a") as working_file:
+                working_file.write(f"\n{arg}")
+            print("done!")
+            await ctx.send(f"Done!")
+        except:
+            print("[✘] Could not add banned site")
+            await ctx.send("Oops! Somethign went wrong!")
+
+    @commands.command(hidden=True)
+    @commands.check(is_staff)
+    async def list_banned_sites(ctx):
+        print(banned_sites)
+
 
 @benchybot.event
 async def on_ready():
