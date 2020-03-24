@@ -595,9 +595,23 @@ class ChatFilter(commands.Cog):
     Adapted from code provided by @Ed#9952 from the Discord
     https://github.com/EdwardChamberlain/Discord-Censor-Bot
     """
+
+    def __init__(self, bot):
+        self.covidRoleID = 691322628354343002   #3D printing Server
+        #self.covidRoleID = 691050284771835924   #Test server
+        self.bot = bot
+        self.BannedPhrases.metadata.create_all(ENGINE)
+        self.numBannedPhrases = 0
+    
+    # database class
+    class BannedPhrases(BASE):
+        __tablename__ = "BannedPhrases"
+        ID = Column(Integer, primary_key=True)
+        phrase = Column(String)
+
     @commands.command()
     @commands.check(is_staff)
-    async def reload_banned_sites(ctx):
+    async def reload_banned_sites(self, ctx):
         #try:
         global banned_sites
         all_banned_sites = open("banned_sites.txt", "r").readlines()
@@ -611,21 +625,24 @@ class ChatFilter(commands.Cog):
 
     @commands.command()
     @commands.check(is_staff)
-    async def add_banned_site(ctx, arg):
-        try:
-            print("appending")
-            with open("banned_sites.txt", "a") as working_file:
-                working_file.write(f"\n{arg}")
-            print("done!")
-            await ctx.send(f"Done!")
-        except:
-            print("[✘] Could not add banned site")
-            await ctx.send("Oops! Somethign went wrong!")
+    async def add_banned_site(self, ctx, arg):
+        """
+        Add a phrase to the database
+        Usage: !add_banned_site word/phrase to be banned
+        Bot will confirm with an okay hand
+        """
+        await ctx.send("yeeet")
+
+    async def helper_test(self):
+        print("helper test ran!")
 
     @commands.command(hidden=True)
     @commands.check(is_staff)
-    async def list_banned_sites(ctx):
+    async def list_banned_sites(self, ctx):
         print(banned_sites)
+
+chat_filter = ChatFilter(benchybot)
+benchybot.add_cog(chat_filter)
 
 
 @benchybot.event
@@ -637,6 +654,7 @@ async def on_ready():
     #Set activity
     if CONFIG['show_status'] == True:
         await benchybot.change_presence(activity=discord.Game(CONFIG['name']))
+    await chat_filter.helper_test()
 
 # on_message event - Called whenever a message is sent on the server - this overwrites default behaviour.
 @benchybot.event
@@ -715,38 +733,6 @@ async def checkemails(ctx, last_uid):
             await ctx.send(embed=embed)
     else:
         await ctx.send("No new emails")
-
-@benchybot.command()
-@commands.check(is_staff)
-async def reload_banned_sites(ctx):
-    #try:
-    global banned_sites
-    all_banned_sites = open("banned_sites.txt", "r").readlines()
-    banned_sites = [line.rstrip("\n") for line in banned_sites]
-    await ctx.send(f"Done!")
-    print(f"[✓] Banned sites updated: {len(banned_sites)}")
-    print(banned_sites)
-    # except:
-    #     print("[✘] Banned sites list could not be updated.")
-    #     await ctx.send("Oops! Somethign went wrong!")
-
-@benchybot.command()
-@commands.check(is_staff)
-async def add_banned_site(ctx, arg):
-    try:
-        print("appending")
-        with open("banned_sites.txt", "a") as working_file:
-            working_file.write(f"\n{arg}")
-        print("done!")
-        await ctx.send(f"Done!")
-    except:
-        print("[✘] Could not add banned site")
-        await ctx.send("Oops! Somethign went wrong!")
-
-@benchybot.command(hidden=True)
-@commands.check(is_staff)
-async def list_banned_sites(ctx):
-    print(banned_sites)
 
 @benchybot.event
 async def on_command_error(ctx, error):
