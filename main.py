@@ -156,7 +156,8 @@ async def in_secret_channel(ctx):
         'srsbusiness': 525494034203017246,
         'lets-kill-this-bot': 532781500471443477,
         'regular-botcommands': 667463307963138058,
-        'benchybot': 602665906388074496
+        'benchybot': 602665906388074496,
+        'temp-staff': 690992963723198534
     }
     used_channel = ctx.channel.id
     for channel in secret_channels:
@@ -620,7 +621,7 @@ class ChatFilter(commands.Cog):
         await ctx.add_reaction("👌")
 
     @commands.command()
-    @commands.check(is_staff)
+    @commands.check(is_admin)
     async def add_banned_site(self, ctx, *, _phrase):
         """
         Add a phrase to the database
@@ -634,6 +635,34 @@ class ChatFilter(commands.Cog):
         self.load_from_database()
         await ctx.add_reaction("👌")
 
+    @commands.command()
+    @commands.check(is_admin)
+    @commands.check(in_secret_channel)
+    async def show_banned_sites(self, ctx):
+        """
+        Sends the list of banned sites in memory to a text channel
+        Only works in a secret channel
+        """
+        output = [""]
+        i = 0
+        for instance in COMMANDDB.query(BannedPhrases).order_by(BannedPhrases.id):
+            if (int(len(output[i])/900)) == 1:
+                i = i + 1
+                output.append("")
+            output[i] += f"{instance.id}: {instance.phrase}\n"
+
+        i = 1
+        for message in output:
+            embed = discord.Embed(
+                title=f'Banned phrases, pg {i}',
+                color=0xbf5700)
+            embed.add_field(
+                name='All banned phrases, times out after 2 minutes',
+                value = message,
+                inline=False)
+            i += 1
+            await ctx.send(embed=embed, delete_after=120)
+
     def load_from_database(self):
         """Loads database into memory"""
         self.banned_phrase_list = []
@@ -644,8 +673,9 @@ class ChatFilter(commands.Cog):
             self.numBannedPhrases += 1
         
     @commands.command(hidden=True)
-    @commands.check(is_staff)
-    async def list_banned_sites(self, ctx):
+    @commands.check(is_admin)
+    async def print_banned_sites(self, ctx):
+        """Prints the banned sites to the terminal"""
         print(banned_sites)
 
 chat_filter = ChatFilter(benchybot)
