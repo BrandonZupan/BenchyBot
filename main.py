@@ -67,24 +67,6 @@ BASE.metadata.create_all(ENGINE)
 SESSION = sessionmaker(bind=ENGINE)
 COMMANDDB = SESSION()
 
-# Load banned sites
-global banned_sites
-try:
-    banned_sites = open("banned_sites.txt", "r").readlines()
-    banned_sites = [line.rstrip("\n") for line in banned_sites]
-    print(f"[✓] Banned sites loaded: {len(banned_sites)}")
-except:
-    print("[✘] Banned sites list not found. Please create banned_sites.txt with your banned sites.")
-    exit()
-
-# Load banned site Message
-try:
-    banned_message_string = open("banned_message.txt", "r").read()
-    print(f"[✓] Banned sites message loaded: {banned_message_string}")
-except:
-    print("[✘] Banned message list not found. Please create banned_message.txt with your banned message.")
-    exit()
-
 #Discord client
 benchybot = commands.Bot(command_prefix=CONFIG['prefix'])
 
@@ -678,6 +660,11 @@ class ChatFilter(commands.Cog):
         """Prints the banned sites to the terminal"""
         print(banned_sites)
 
+    async def check_message(self, ctx):
+        if (any(s in message.content.lower() for s in banned_sites)):
+        await message.delete()
+        await message.author.send(banned_message_string)
+
 chat_filter = ChatFilter(benchybot)
 benchybot.add_cog(chat_filter)
 
@@ -692,17 +679,8 @@ async def on_ready():
     if CONFIG['show_status'] == True:
         await benchybot.change_presence(activity=discord.Game(CONFIG['name']))
 
-# on_message event - Called whenever a message is sent on the server - this overwrites default behaviour.
 @benchybot.event
 async def on_message(message):
-    # Un-comment to enable full output:
-    #print(f"{message.channel}: {message.author}: {message.content}")
-
-    # Delete banned websites
-    if (any(s in message.content.lower() for s in banned_sites)):
-        await message.delete()
-        await message.author.send(banned_message_string)
-
     # Process commands
     await benchybot.process_commands(message)
 
