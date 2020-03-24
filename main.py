@@ -602,40 +602,46 @@ class ChatFilter(commands.Cog):
         self.bot = bot
         self.BannedPhrases.metadata.create_all(ENGINE)
         self.numBannedPhrases = 0
+        self.banned_phrase_list = []
     
     # database class
     class BannedPhrases(BASE):
         __tablename__ = "BannedPhrases"
-        ID = Column(Integer, primary_key=True)
+        id = Column(Integer, primary_key=True)
         phrase = Column(String)
 
     @commands.command()
     @commands.check(is_staff)
     async def reload_banned_sites(self, ctx):
-        #try:
-        global banned_sites
-        all_banned_sites = open("banned_sites.txt", "r").readlines()
-        banned_sites = [line.rstrip("\n") for line in banned_sites]
-        await ctx.send(f"Done!")
-        print(f"[✓] Banned sites updated: {len(banned_sites)}")
-        print(banned_sites)
-        # except:
-        #     print("[✘] Banned sites list could not be updated.")
-        #     await ctx.send("Oops! Somethign went wrong!")
+        """
+        Reloads the banned phrases from the database
+        """
+        
 
     @commands.command()
     @commands.check(is_staff)
-    async def add_banned_site(self, ctx, arg):
+    async def add_banned_site(self, ctx, *, _phrase):
         """
         Add a phrase to the database
         Usage: !add_banned_site word/phrase to be banned
         Bot will confirm with an okay hand
         """
-        await ctx.send("yeeet")
+        new_phrase = self.BannedPhrases(id=self.numBannedPhrases, phrase=_phrase)
+        COMMANDDB.merge(new_phrase)
+        COMMANDDB.commit()
 
-    async def helper_test(self):
-        print("helper test ran!")
+        self.load_from_database()
+        await ctx.add_reaction("👌")
 
+    def load_from_database(self):
+        """Loads database into memory"""
+        self.banned_phrase_list = []
+        self.numBannedPhrases = 0
+
+        for instance in COMMANDDB.query(self.BannedPhrases).order_by(self.BannedPhrases.id):
+            self.banned_phrase_list.append(instance.phrase)
+            self.numBannedPhrases += 1
+        
     @commands.command(hidden=True)
     @commands.check(is_staff)
     async def list_banned_sites(self, ctx):
@@ -654,7 +660,6 @@ async def on_ready():
     #Set activity
     if CONFIG['show_status'] == True:
         await benchybot.change_presence(activity=discord.Game(CONFIG['name']))
-    await chat_filter.helper_test()
 
 # on_message event - Called whenever a message is sent on the server - this overwrites default behaviour.
 @benchybot.event
