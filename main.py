@@ -660,10 +660,10 @@ class ChatFilter(commands.Cog):
         """Prints the banned sites to the terminal"""
         print(banned_sites)
 
-    async def check_message(self, ctx):
-        if (any(s in message.content.lower() for s in banned_sites)):
-            await message.delete()
-            await message.author.send(banned_message_string)
+    async def check_message(self, message):
+        if (any(s in message.content.lower() for s in self.banned_phrase_list)):
+            await message.add_reaction("😠")
+
 
 chat_filter = ChatFilter(benchybot)
 benchybot.add_cog(chat_filter)
@@ -681,6 +681,8 @@ async def on_ready():
 
 @benchybot.event
 async def on_message(message):
+    # Check for banned words/phrases
+    await chat_filter.check_message(message)
     # Process commands
     await benchybot.process_commands(message)
 
