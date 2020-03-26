@@ -600,7 +600,7 @@ class ChatFilter(commands.Cog):
         Reloads the banned phrases from the database
         """
         self.load_from_database()
-        await ctx.add_reaction("👌")
+        await ctx.message.add_reaction("👌")
 
     @commands.command()
     @commands.check(is_admin)
@@ -631,7 +631,7 @@ class ChatFilter(commands.Cog):
             if (int(len(output[i])/900)) == 1:
                 i = i + 1
                 output.append("")
-            output[i] += f"{instance.id}: `{instance.phrase}`\n"
+            output[i] += f"`{instance.phrase}`\n"
 
         i = 1
         for message in output:
