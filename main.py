@@ -103,7 +103,7 @@ async def is_admin(ctx):
         if test_role in ctx.author.roles:
             return True
 
-    await ctx.send("You do not have permission to do that")
+    # await ctx.send("You do not have permission to do that")
     return False
 
 async def is_regular(ctx):
@@ -686,7 +686,8 @@ class ChatFilter(commands.Cog):
     async def check_message(self, message):
         if (not await is_staff(message.author)):
             if (any(s in message.content.lower() for s in self.banned_phrase_list)):
-                await message.add_reaction("😠")
+                await message.delete()
+                await message.channel.send(f"{message.author}, your message has been removed because it contains a link to a banned website or a banned word/phrase. ")
 
 
 chat_filter = ChatFilter(benchybot)
