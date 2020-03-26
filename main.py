@@ -13,6 +13,7 @@ from discord.ext import tasks, commands
 from sqlalchemy import create_engine, Column, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.exc import NoResultFound
 import graphing
 from email_checker import get_recent_emails
 import csv
@@ -574,7 +575,7 @@ benchybot.add_cog(CoronaChannel(benchybot))
 
 class ChatFilter(commands.Cog):
     """
-    Detects and deletes specific words and phrases
+    Detects and deletes specific words and phrases. Staff are not filtered. 
     Adapted from code provided by @Ed#9952 from the Discord
     https://github.com/EdwardChamberlain/Discord-Censor-Bot
     """
@@ -616,6 +617,30 @@ class ChatFilter(commands.Cog):
 
         self.load_from_database()
         await ctx.message.add_reaction("👌")
+
+    @commands.command()
+    @commands.check(is_admin)
+    async def remove_banned_site(self, ctx, *, _phrase):
+        """
+        Removes a phrase from the database
+        Usage: !remove_banned_site word/phrase to be unbanned
+        Bot will confirm with a message
+        """
+        lower_phrase = _phrase.lower()
+        try:
+            dbEntry = COMMANDDB.query(self.BannedPhrases).filter_by(phrase=lower_phrase).one()
+            COMMANDDB.delete(dbEntry)
+            COMMANDDB.commit()
+            await ctx.send(f"Deleted phrase, `{lower_phrase}`")
+            logging.info(
+                "%s deleted %s from banned phrases",
+                ctx.author.name,
+                lower_phrase
+            )
+            # Refresh database
+            self.load_from_database()
+        except NoResultFound:
+            await ctx.send(f"Error: Could not find `{lower_phrase}` in the database")
 
     @commands.command()
     @commands.check(is_admin)
@@ -661,8 +686,9 @@ class ChatFilter(commands.Cog):
         print(banned_sites)
 
     async def check_message(self, message):
-        if (any(s in message.content.lower() for s in self.banned_phrase_list)):
-            await message.add_reaction("😠")
+        if (not await is_staff(message.author)):
+            if (any(s in message.content.lower() for s in self.banned_phrase_list)):
+                await message.add_reaction("😠")
 
 
 chat_filter = ChatFilter(benchybot)
