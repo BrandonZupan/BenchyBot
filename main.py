@@ -581,8 +581,6 @@ class ChatFilter(commands.Cog):
     """
 
     def __init__(self, bot):
-        self.covidRoleID = 691322628354343002   #3D printing Server
-        #self.covidRoleID = 691050284771835924   #Test server
         self.bot = bot
         self.BannedPhrases.metadata.create_all(ENGINE)
         self.numBannedPhrases = 0
