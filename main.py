@@ -585,6 +585,8 @@ class ChatFilter(commands.Cog):
         self.BannedPhrases.metadata.create_all(ENGINE)
         self.numBannedPhrases = 0
         self.banned_phrase_list = []
+        # self.logChannelId = 500395384720588810  #For the actual server
+        self.logChannelId = 602665906388074496  #For the test server
     
     # database class
     class BannedPhrases(BASE):
@@ -687,7 +689,19 @@ class ChatFilter(commands.Cog):
         if (not await is_staff(message.author)):
             if (any(s in message.content.lower() for s in self.banned_phrase_list)):
                 await message.delete()
-                await message.channel.send(f"{message.author}, your message has been removed because it contains a link to a banned website or a banned word/phrase. ")
+                await message.channel.send(f"{message.author.mention}, your message has been removed because it contains a link to a banned website or a banned word/phrase. ")
+                embed = await self.log_builder(message)
+                logChannel = self.bot.get_channel(self.logChannelId)
+                await logChannel.send(embed=embed)
+
+
+    async def log_builder(self, message):
+        embed = discord.Embed(
+            title="Auto-Deleted Message", 
+            description=f"A message has been deleted in {message.channel.mention} by {message.author.mention}", 
+            color=0xaf0000)
+        embed.add_field(name="Message", value=f"`{message.content}`", inline=False)
+        return embed
 
 
 chat_filter = ChatFilter(benchybot)
