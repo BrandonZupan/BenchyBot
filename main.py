@@ -631,14 +631,13 @@ class ChatFilter(commands.Cog):
             dbEntry = COMMANDDB.query(self.BannedPhrases).filter_by(phrase=lower_phrase).one()
             COMMANDDB.delete(dbEntry)
             COMMANDDB.commit()
+            self.load_from_database()
             await ctx.send(f"Deleted phrase, `{lower_phrase}`")
             logging.info(
                 "%s deleted %s from banned phrases",
                 ctx.author.name,
                 lower_phrase
             )
-            # Refresh database
-            self.load_from_database()
         except NoResultFound:
             await ctx.send(f"Error: Could not find `{lower_phrase}` in the database")
 
