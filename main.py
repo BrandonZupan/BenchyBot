@@ -563,7 +563,7 @@ class CoronaChannel(commands.Cog):
         Prints all banned users to console
         """
         for instance in COMMANDDB.query(self.CoronaDB).order_by(self.CoronaDB.userID):
-            print(bot.get_user(instance.userID).mention)
+            print(ctx.guild.get_user(instance.userID).mention)
 
     def can_add_role(self, user):
         """
