@@ -585,8 +585,8 @@ class ChatFilter(commands.Cog):
         self.BannedPhrases.metadata.create_all(ENGINE)
         self.numBannedPhrases = 0
         self.banned_phrase_list = []
-        # self.logChannelId = 500395384720588810  #For the actual server
-        self.logChannelId = 602665906388074496  #For the test server
+        self.logChannelId = 500395384720588810  #For the actual server
+        # self.logChannelId = 602665906388074496  #For the test server
     
     # database class
     class BannedPhrases(BASE):
@@ -608,7 +608,7 @@ class ChatFilter(commands.Cog):
     async def add_banned_site(self, ctx, *, _phrase):
         """
         Add a phrase to the database
-        Usage: !add_banned_site word/phrase to be banned
+        Usage: !addBannedPhrase word/phrase to be banned
         Bot will confirm with an okay hand
         """
         new_phrase = self.BannedPhrases(id=self.numBannedPhrases, phrase=_phrase)
@@ -623,7 +623,7 @@ class ChatFilter(commands.Cog):
     async def remove_banned_site(self, ctx, *, _phrase):
         """
         Removes a phrase from the database
-        Usage: !remove_banned_site word/phrase to be unbanned
+        Usage: !removeBannedPhrase word/phrase to be unbanned
         Bot will confirm with a message
         """
         lower_phrase = _phrase.lower()
