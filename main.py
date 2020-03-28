@@ -556,6 +556,15 @@ class CoronaChannel(commands.Cog):
                 member
             )
 
+    @commands.command(hidden=True)
+    @commands.check(is_admin)
+    async def printBannedCovid19(self, ctx):
+        """
+        Prints all banned users to console
+        """
+        for instance in COMMANDDB.query(self.CoronaDB).order_by(self.CoronaDB.userID):
+            print(bot.get_user(instance.userID).mention)
+
     def can_add_role(self, user):
         """
         Checks if the user can add the corona role to themselves
