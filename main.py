@@ -594,7 +594,7 @@ class ChatFilter(commands.Cog):
         id = Column(Integer, primary_key=True)
         phrase = Column(String)
 
-    @commands.command()
+    @commands.command(name="reloadBannedPhrases", hidden=True)
     @commands.check(is_staff)
     async def reload_banned_sites(self, ctx):
         """
@@ -603,7 +603,7 @@ class ChatFilter(commands.Cog):
         self.load_from_database()
         await ctx.message.add_reaction("👌")
 
-    @commands.command()
+    @commands.command(name="addBannedPhrase")
     @commands.check(is_admin)
     async def add_banned_site(self, ctx, *, _phrase):
         """
@@ -618,7 +618,7 @@ class ChatFilter(commands.Cog):
         self.load_from_database()
         await ctx.message.add_reaction("👌")
 
-    @commands.command()
+    @commands.command(name="removeBannedPhrase")
     @commands.check(is_admin)
     async def remove_banned_site(self, ctx, *, _phrase):
         """
@@ -642,8 +642,8 @@ class ChatFilter(commands.Cog):
         except NoResultFound:
             await ctx.send(f"Error: Could not find `{lower_phrase}` in the database")
 
-    @commands.command()
-    @commands.check(is_admin)
+    @commands.command(name="showBannedPhrases")
+    @commands.check(is_staff)
     @commands.check(in_secret_channel)
     async def show_banned_sites(self, ctx):
         """
@@ -679,7 +679,7 @@ class ChatFilter(commands.Cog):
             self.banned_phrase_list.append(instance.phrase)
             self.numBannedPhrases += 1
         
-    @commands.command(hidden=True)
+    @commands.command(hidden=True, name="printBannedPhrases")
     @commands.check(is_admin)
     async def print_banned_sites(self, ctx):
         """Prints the banned sites to the terminal"""
