@@ -27,6 +27,7 @@ lib64
 ignored_roles.txt
 
 .vscode
+.idea/
 
 #Gmail data file
 email_data.txt
