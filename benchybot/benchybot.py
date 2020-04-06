@@ -14,8 +14,9 @@ from sqlalchemy import create_engine, Column, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
-from benchybot import graphing
-from benchybot.email_checker import get_recent_emails
+# from benchybot import graphing
+# from benchybot.email_checker import get_recent_emails
+import benchybot
 import csv
 import os
 import json
@@ -203,7 +204,7 @@ class EmailChecker(commands.Cog):
         loop = asyncio.get_running_loop()
 
         #Create partial function to pass arguments
-        email_function = partial(get_recent_emails, self.last_uid)
+        email_function = partial(benchybot.email_checker.get_recent_emails, self.last_uid)
         emails = await loop.run_in_executor(None, email_function)
 
         #Only post if there were emails
@@ -691,7 +692,7 @@ class ChatFilter(commands.Cog):
     @commands.check(is_admin)
     async def print_banned_sites(self, ctx):
         """Prints the banned sites to the terminal"""
-        print(banned_sites)
+        print(self.banned_phrase_list)
 
     async def check_message(self, message):
         if (not await is_staff(message.author)):
@@ -751,7 +752,7 @@ async def user_graph(ctx):
     """
     Generates a graph of when users joined
     """
-    await graphing.join_chart_generator(ctx)
+    await benchybot.join_chart_generator(ctx)
 
 @benchybot.command(name='userlist', hidden=True)
 @commands.check(is_admin)
@@ -760,7 +761,7 @@ async def user_list(ctx):
     """
     Generates a CSV of when all members joined
     """
-    await graphing.user_csv_generator(ctx)
+    await benchybot.graphing.user_csv_generator(ctx)
 
 @benchybot.command(name='printergraph', hidden=True)
 @commands.check(is_admin)
@@ -769,7 +770,7 @@ async def printergraph(ctx):
     Generates a graph of all printers
     Restricted to admin perms
     """
-    await graphing.printer_graph_generator(ctx)
+    await benchybot.graphing.printer_graph_generator(ctx)
 
 #Disable command
 @commands.check(False)
@@ -783,7 +784,7 @@ async def checkemails(ctx, last_uid):
     loop = asyncio.get_running_loop()
 
     #Create partial function to pass arguments
-    email_function = partial(get_recent_emails, int(last_uid))
+    email_function = partial(benchybot.email_checker.get_recent_emails, int(last_uid))
     emails = await loop.run_in_executor(None, email_function)
 
     #Only post if there were emails
