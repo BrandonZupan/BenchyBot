@@ -6,7 +6,7 @@ Runs the main code for the 3D Printing Discord's Benchy Bot
 
 import logging
 import asyncio
-#import concurrent.futures
+# import concurrent.futures
 from functools import partial
 import discord
 from discord.ext import tasks, commands
@@ -14,25 +14,23 @@ from sqlalchemy import create_engine, Column, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
-# from benchybot import graphing
-# from benchybot.email_checker import get_recent_emails
 import benchybot
 import csv
 import os
 import json
 
-#Start logging
+# Start logging
 logging.basicConfig(level=logging.INFO)
 
-#Setup JSON config file
+# Setup JSON config file
 CONFIG_FILE = 'config.json'
 CONFIG = {}
 if os.path.exists(CONFIG_FILE):
-    #load it
+    # load it
     with open(CONFIG_FILE, "r") as config_file:
         CONFIG = json.load(config_file)
 else:
-    #create file
+    # create file
     config_template = {
         "key": "put private key here",
         "prefix": "!",
@@ -46,9 +44,10 @@ else:
     exit()
 
 
-#SQL Database
+# SQL Database
 ENGINE = create_engine(CONFIG['database'], echo=False)
 BASE = declarative_base()
+
 
 class CCCommand(BASE):
     """
@@ -56,27 +55,26 @@ class CCCommand(BASE):
     """
     __tablename__ = "imageCommands"
 
-    #Has a column for the ID, name, and responce
-    #id = Column(Integer, primary_key=True)
+    # Has a column for the ID, name, and responce
+    # id = Column(Integer, primary_key=True)
     name = Column(String, primary_key=True)
     responce = Column(String)
     category = Column(String)   #help or fun
 
-#Create the Table
+# Create the Table
 BASE.metadata.create_all(ENGINE)
 
-#Start the SQL session
+# Start the SQL session
 SESSION = sessionmaker(bind=ENGINE)
 COMMANDDB = SESSION()
 
-#Discord client
+# Discord client
 benchybot = commands.Bot(command_prefix=CONFIG['prefix'])
 
 
-############
-###Checks###
-############
-
+##########
+# Checks #
+##########
 
 
 async def role_check(member: discord.Member, ctx, roles):
@@ -88,6 +86,7 @@ async def role_check(member: discord.Member, ctx, roles):
     
     # await ctx.send("You do not have permission to do that")
     return False
+
 
 async def is_admin(ctx):
     """
@@ -107,6 +106,7 @@ async def is_admin(ctx):
     # await ctx.send("You do not have permission to do that")
     return False
 
+
 async def is_regular(ctx):
     """Checks if user has regular role"""
     regular_roles = {
@@ -114,6 +114,7 @@ async def is_regular(ctx):
         '3DPrinters Admin': 667109722930806835
     }
     return await role_check(ctx.author, ctx, regular_roles)
+
 
 async def is_staff(ctx):
     """Checks if the user is staff"""
@@ -133,6 +134,7 @@ async def is_staff(ctx):
 # async def is_staff(ctx: commands.Context):
 #     await is_staff(ctx.author)
 
+
 async def in_secret_channel(ctx):
     """Checks if a command was used in a secret channel"""
     secret_channels = {
@@ -148,9 +150,10 @@ async def in_secret_channel(ctx):
         if secret_channels[channel] == used_channel:
             return True
 
-    #It dont exist
+    # It dont exist
     await ctx.send("sshhhhh this command is restricted to secret channels")
     return False
+
 
 async def in_botspam(ctx):
     """Checks if a command was done in a botspam channel"""
@@ -174,8 +177,8 @@ class EmailChecker(commands.Cog):
     def __init__(self, bot):
         self.uid_file = 'email_data.txt'
         self.last_uid = self.get_last_uid()
-        #self.email_channel = benchybot.get_channel(608703043537600562)
-        #self.loop = asyncio.get_running_loop()
+        # self.email_channel = benchybot.get_channel(608703043537600562)
+        # self.loop = asyncio.get_running_loop()
         self.bot = bot
         self.email_loop.start()
 
@@ -186,7 +189,7 @@ class EmailChecker(commands.Cog):
         """Reads last UID from the file"""
         try:
             with open(self.uid_file, 'r') as f:
-                #Finish this, return the value in the file
+                # Finish this, return the value in the file
                 new_uid = int(f.read())
                 print(new_uid)
                 return new_uid
@@ -203,18 +206,18 @@ class EmailChecker(commands.Cog):
         print(self.last_uid)
         loop = asyncio.get_running_loop()
 
-        #Create partial function to pass arguments
+        # Create partial function to pass arguments
         email_function = partial(benchybot.email_checker.get_recent_emails, self.last_uid)
         emails = await loop.run_in_executor(None, email_function)
 
-        #Only post if there were emails
+        # Only post if there were emails
         if emails:
 
-            #Get channel
+            # Get channel
             email_channel = benchybot.get_channel(609146304307920936)
 
             for email in emails:
-                #print(email)
+                # print(email)
                 embed = discord.Embed(title=email.sender[1], color=0xbf5700)
                 embed.add_field(name=email.subject, value=email.body, inline=True)
                 embed.set_footer(text=f"UID: {email.uid}")
@@ -222,17 +225,18 @@ class EmailChecker(commands.Cog):
 
                 logging.info("Sent Email UID %s to email channel", str(email.uid))
 
-                #Save uid so it isn't posted twice
+                # Save uid so it isn't posted twice
                 self.last_uid = email.uid
                 with open(self.uid_file, 'w') as f:
                     f.write(str(self.last_uid))
-        #else:
-        #    print("No new emails")
+        # else:
+        #     print("No new emails")
 
     @email_loop.before_loop
     async def before_printer(self):
         print('email checker is waiting...')
         await self.bot.wait_until_ready()
+
 
 class MyCog(commands.Cog):
     def __init__(self):
@@ -247,7 +251,8 @@ class MyCog(commands.Cog):
         print(self.index)
         self.index += 1
 
-#benchybot.add_cog(EmailChecker(benchybot))
+# benchybot.add_cog(EmailChecker(benchybot))
+
 
 class CommandDB(commands.Cog):
     """
@@ -302,7 +307,7 @@ class CommandDB(commands.Cog):
 
         Bot will confirm with :ok_hand:
         """
-        #add a command
+        # add a command
         if ctx.message.mention_everyone == False:
             CATEGORY = 'fun'
             await self.add_command(ctx, command, _responce, CATEGORY)
@@ -310,7 +315,6 @@ class CommandDB(commands.Cog):
 
         else:
             await ctx.send(f"Please do not use everyone or here, {ctx.author}")
-
 
     @cc_command.error
     async def cc_error(self, ctx, error):
@@ -342,7 +346,6 @@ class CommandDB(commands.Cog):
                 victim = COMMANDDB.query(CCCommand).filter_by(name=ctx.args[2]).one()
                 await self.delete_command(ctx, victim)
 
-
     @commands.command(name='hc')
     async def hc(self, ctx, command, *, _responce):
         """
@@ -365,14 +368,13 @@ class CommandDB(commands.Cog):
             else:
                 await ctx.send(f"Please do not use everyone or here, {ctx.author}")
 
-
     @hc.error
     async def hc_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'command':
-                #print(in_botspam(ctx))
+                # print(in_botspam(ctx))
                 if await in_botspam(ctx) == True:
-                    #Output the command list
+                    # Output the command list
                     output = [""]
                     i = 0
                     for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
@@ -383,7 +385,7 @@ class CommandDB(commands.Cog):
                             output[i] += f"{instance.name} "
                     i = 1
                     for message in output:
-                        #print(f"Messages: {message}")
+                        # print(f"Messages: {message}")
                         embed = discord.Embed(
                             title=f'Help commands, pg {i}',
                             color=0xbf5700)
@@ -399,9 +401,9 @@ class CommandDB(commands.Cog):
                 else: 
                     return
 
-            #Responce be missing so yeet it
+            # Responce be missing so yeet it
             elif error.param.name == '_responce':
-                #Make sure they be allowed
+                # Make sure they be allowed
                 if await is_regular(ctx) == True and await in_secret_channel(ctx) == True:
                     victim = COMMANDDB.query(CCCommand).filter_by(name=ctx.args[2]).one()
                     if victim.category == 'help':
@@ -412,8 +414,6 @@ class CommandDB(commands.Cog):
         else:
             await ctx.send("There was an error, details in log (in function hc_error)")
             print(f"Error be different:{error}")
-            
-
 
     @commands.command(name='cc-csv', hidden=True)
     @commands.check(is_admin)
@@ -470,6 +470,7 @@ class CommandDB(commands.Cog):
 
 benchybot.add_cog(CommandDB(benchybot))
 
+
 class CoronaChannel(commands.Cog):
     """
     Handles the Covid-19 Channel role
@@ -479,7 +480,7 @@ class CoronaChannel(commands.Cog):
 
     def __init__(self, bot):
         self.covidRoleID = 691322628354343002   #3D printing Server
-        #self.covidRoleID = 691050284771835924   #Test server
+        # self.covidRoleID = 691050284771835924   #Test server
         self.bot = bot
         self.CoronaDB.metadata.create_all(ENGINE)
     
@@ -515,7 +516,7 @@ class CoronaChannel(commands.Cog):
             # add the member to the database
             # remove the role
 
-            #if await is_staff(member):
+            # if await is_staff(member):
             if False:
                 await ctx.send(f"Error: Cannot remove role from staff member, {member}")
             
@@ -580,6 +581,7 @@ class CoronaChannel(commands.Cog):
         COMMANDDB.merge(new_member)
         COMMANDDB.commit()
 
+
 benchybot.add_cog(CoronaChannel(benchybot))
 
 
@@ -595,7 +597,7 @@ class ChatFilter(commands.Cog):
         self.BannedPhrases.metadata.create_all(ENGINE)
         self.numBannedPhrases = 0
         self.banned_phrase_list = []
-        self.logChannelId = 500395384720588810  #For the actual server
+        self.logChannelId = 500395384720588810  # For the actual server
         # self.logChannelId = 602665906388074496  #For the test server
     
     # database class
@@ -695,14 +697,13 @@ class ChatFilter(commands.Cog):
         print(self.banned_phrase_list)
 
     async def check_message(self, message):
-        if (not await is_staff(message.author)):
-            if (any(s in message.content.lower() for s in self.banned_phrase_list)):
+        if not await is_staff(message.author):
+            if any(s in message.content.lower() for s in self.banned_phrase_list):
                 await message.delete()
                 await message.channel.send(f"{message.author.mention}, your message has been removed because it contains a link to a banned website or a banned word/phrase. ")
                 embed = await self.log_builder(message)
                 logChannel = self.bot.get_channel(self.logChannelId)
                 await logChannel.send(embed=embed)
-
 
     async def log_builder(self, message):
         embed = discord.Embed(
@@ -723,9 +724,10 @@ async def on_ready():
     Runs when bot connects
     """
     print('We have logged in as {0.user}'.format(benchybot))
-    #Set activity
+    # Set activity
     if CONFIG['show_status'] == True:
         await benchybot.change_presence(activity=discord.Game(CONFIG['name']))
+
 
 @benchybot.event
 async def on_message(message):
@@ -734,9 +736,10 @@ async def on_message(message):
     # Process commands
     await benchybot.process_commands(message)
 
-##############
-###Commands###
-##############
+############
+# Commands #
+############
+
 
 @benchybot.command(name='hello')
 async def hello(ctx):
@@ -752,7 +755,8 @@ async def user_graph(ctx):
     """
     Generates a graph of when users joined
     """
-    await benchybot.join_chart_generator(ctx)
+    await benchybot.graphing.join_chart_generator(ctx)
+
 
 @benchybot.command(name='userlist', hidden=True)
 @commands.check(is_admin)
@@ -763,6 +767,7 @@ async def user_list(ctx):
     """
     await benchybot.graphing.user_csv_generator(ctx)
 
+
 @benchybot.command(name='printergraph', hidden=True)
 @commands.check(is_admin)
 async def printergraph(ctx):
@@ -772,7 +777,8 @@ async def printergraph(ctx):
     """
     await benchybot.graphing.printer_graph_generator(ctx)
 
-#Disable command
+
+# Disable command
 @commands.check(False)
 @benchybot.command(name='checkemails', hidden=True)
 @commands.check(is_admin)
@@ -783,14 +789,14 @@ async def checkemails(ctx, last_uid):
     """
     loop = asyncio.get_running_loop()
 
-    #Create partial function to pass arguments
+    # Create partial function to pass arguments
     email_function = partial(benchybot.email_checker.get_recent_emails, int(last_uid))
     emails = await loop.run_in_executor(None, email_function)
 
-    #Only post if there were emails
+    # Only post if there were emails
     if emails:
         for email in emails:
-            #print(email)
+            # print(email)
             embed = discord.Embed(title=email.sender[1], color=0xbf5700)
             embed.add_field(name=email.subject, value=email.body, inline=True)
             embed.set_footer(text=f"UID: {email.uid}")
@@ -798,17 +804,18 @@ async def checkemails(ctx, last_uid):
     else:
         await ctx.send("No new emails")
 
+
 @benchybot.event
 async def on_command_error(ctx, error):
     """
     Parses command database since library sees them as an error
     """
     if isinstance(error, commands.errors.CommandNotFound):
-        #await ctx.send(ctx.message.content)
+        # await ctx.send(ctx.message.content)
         command = ctx.message.content.lower()
         command = command.split(" ", 1)
 
-        #Look if its in the database
+        # Look if its in the database
         for instance in COMMANDDB.query(CCCommand).order_by(CCCommand.name):
             if instance.name == command[0][1:]:
                 await ctx.send(instance.responce)
